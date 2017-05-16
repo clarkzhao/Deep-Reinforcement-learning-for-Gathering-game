@@ -1,6 +1,7 @@
 # from constant import  *
 
-class Apple():
+
+class Apple:
     def __init__(self, row, col):
 
         # The position of the apple
@@ -14,7 +15,7 @@ class Apple():
         # False when the apple is available to be collected
         self.is_collected = False
 
-    def getCollected(self, time):
+    def get_collected(self, time):
         """Called when the apple is collected by a player"""
         self.is_collected = True
         self.collected_time = time
