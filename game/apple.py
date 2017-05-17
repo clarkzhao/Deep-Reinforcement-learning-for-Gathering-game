@@ -19,11 +19,8 @@ class Apple:
         """Called when the apple is collected by a player"""
         self.is_collected = True
         self.collected_time = time
-        print("get Collected")
-        print(self.collected_time)
 
     def respawn(self):
         """Called when the apple should be respawn"""
         self.is_collected = False
         self.collected_time = 0.
-        print("Respawn")

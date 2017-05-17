@@ -8,6 +8,7 @@ import numpy as np
 import player
 import constant
 import apple
+import pyglet
 
 
 class Gathering(arcade.Window):
@@ -21,11 +22,13 @@ class Gathering(arcade.Window):
         :param height: the screen height
         """
         super().__init__(width, height)
-
+        pyglet.clock.schedule_interval(self.update, 1000)
+        self.set_update_rate(100.)
         self.grid = np.zeros([constant.ROW_COUNT, constant.COLUMN_COUNT], 'int8')
         self.player = None
         self.apples = []
         self.total_time = 0.0
+        self.frame_count = 0
 
     def setup(self):
         self.player = player.Player(0, 0)
@@ -35,6 +38,7 @@ class Gathering(arcade.Window):
         self.add_apples(size=constant.SIZE_APPLE,
                         start=center_point-constant.SIZE_APPLE+1)
         self.total_time = 0.0
+        self.frame_count = 0
 
         arcade.set_background_color(arcade.color.BLACK)
 
@@ -62,25 +66,39 @@ class Gathering(arcade.Window):
     def update(self, dt):
         """ Move everything """
         self.total_time += dt
-
+        self.frame_count += 1
         self.player.move()
-
         self.grid.fill(0)
-        for apple in self.apples:
+        for item in self.apples:
             # Check if there is any apple can be respawn
-            if apple.is_collected:
-                if self.total_time - apple.collected_time \
+            if item.is_collected:
+                if self.total_time - item.collected_time \
                         >= constant.RESPOWN_TIME:
-                    apple.respawn()
+                    item.respawn()
 
             # Mark apples in the grid
-            if not apple.is_collected:
-                self.grid[apple.row][apple.col] = constant.APPLE
+            if not item.is_collected:
+                self.grid[item.row][item.col] = constant.APPLE
 
         if self.check_apple(self.player.row, self.player.col):
             self.collect_apple(self.player.row, self.player.col)
 
         self.grid[self.player.row][self.player.col] = constant.PLAYER
+
+        # Check for the front of player
+        fro_row, fro_col = self.get_front_grid(self.player.direction, self.player)
+        if 0 <= fro_row < constant.ROW_COUNT and 0 <= fro_col < constant.COLUMN_COUNT:
+            if not self.check_apple(fro_row, fro_col):
+                self.grid[fro_row][fro_col] = constant.FRONT_OF_PLAYER
+
+    @staticmethod
+    def get_front_grid(direction, agent: player.Player):
+        return {
+            constant.UP: (agent.row+1, agent.col),
+            constant.DOWN: (agent.row-1, agent.col),
+            constant.LEFT: (agent.row, agent.col-1),
+            constant.RIGHT: (agent.row, agent.col+1),
+        }[direction]
 
     def check_apple(self, row, col):
         """Check if a apple is collected"""
@@ -90,9 +108,9 @@ class Gathering(arcade.Window):
             return False
 
     def collect_apple(self, row, col):
-        for apple in self.apples:
-            if apple.row == row and apple.col == col:
-                apple.get_collected(self.total_time)
+        for item in self.apples:
+            if item.row == row and item.col == col:
+                item.get_collected(self.total_time)
                 self.player.get_reward()
 
     def on_draw(self):
@@ -111,6 +129,8 @@ class Gathering(arcade.Window):
                     color = arcade.color.BLUE
                 elif self.grid[row][column] == constant.APPLE:
                     color = arcade.color.GREEN
+                elif self.grid[row][column] == constant.FRONT_OF_PLAYER:
+                    color = arcade.color.GRAY
                 else:
                     color = arcade.color.BLACK
 
@@ -133,6 +153,12 @@ class Gathering(arcade.Window):
             self.player.delta_col = -1
         elif key == arcade.key.RIGHT:
             self.player.delta_col = 1
+        elif key == arcade.key.Q:
+            self.player.delta_direction = -1
+        elif key == arcade.key.E and self.player.delta_direction == 0:
+            self.player.delta_direction = 1
+        elif key == arcade.key.SPACE:
+            self.player.use_beam = True
 
     def on_key_release(self, key, modifiers):
         """
@@ -142,11 +168,13 @@ class Gathering(arcade.Window):
             self.player.delta_row = 0
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player.delta_col = 0
-
+        elif key == arcade.key.Q or key == arcade.key.E:
+            self.player.delta_direction = 0
 
 def main():
     window = Gathering(constant.SCREEN_WIDTH, constant.SCREEN_HEIGHT)
     window.setup()
     arcade.run()
 
-main()
+if __name__ == "__main__":
+    main()

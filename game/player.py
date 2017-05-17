@@ -22,12 +22,20 @@ class Player:
         # Total reward gathered
         self.reward = reward
 
+        # Direction
+        self.direction = constant.UP
+
+        # rotate clockwise -> 1
+        # rotate counter-clockwise -> -1
+        self.delta_direction = 0
+
+        self.use_beam = False
         # a 16x21 grid
         # self.view = view
 
     def move(self):
         """move the player"""
-
+        print(self.delta_row)
         # Move left/right
         self.row += self.delta_row
 
@@ -45,6 +53,9 @@ class Player:
             self.col = 0
         if self.col > constant.COLUMN_COUNT - 1:
             self.col = constant.COLUMN_COUNT - 1
+
+        # Rotate
+        self.direction = (self.direction + self.delta_direction) % 4
 
     def get_reward(self):
         self.reward += 1

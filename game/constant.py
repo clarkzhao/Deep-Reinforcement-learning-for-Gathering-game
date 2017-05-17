@@ -20,8 +20,18 @@ RESPOWN_TIME = 1
 # Digits in the grid
 EMPTY = 0
 PLAYER = 1
+FRONT_OF_PLAYER = -1
 APPLE = 2
-OPPONENT = -1
+OPPONENT = 3
+
 
 # The diamond size of the apple
 SIZE_APPLE = 4
+
+# Direction of the player
+UP = 0
+DOWN = 2
+LEFT = 3
+RIGHT = 1
+
+
