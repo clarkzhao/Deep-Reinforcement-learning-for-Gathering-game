@@ -10,7 +10,7 @@ The two games of Gathering and Wolfpack is orgionally proposed by Dr. Joel and D
 
 ### Dependencies 
 
-*  Aracade: [documentation](http://pythonhosted.org/arcade/) and [github](https://github.com/pvcraven/arcade)
+*  [Pygame](http://www.pygame.org/news)
 *  Numpy
 
 

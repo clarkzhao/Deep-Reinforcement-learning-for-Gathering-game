@@ -8,7 +8,6 @@ import numpy as np
 import player
 import constant
 import apple
-import pyglet
 
 
 class Gathering(arcade.Window):
@@ -21,9 +20,8 @@ class Gathering(arcade.Window):
         :param width: the screen width
         :param height: the screen height
         """
+        self.set_update_rate(1 / 10)
         super().__init__(width, height)
-        pyglet.clock.schedule_interval(self.update, 1000)
-        self.set_update_rate(100.)
         self.grid = np.zeros([constant.ROW_COUNT, constant.COLUMN_COUNT], 'int8')
         self.player = None
         self.apples = []
