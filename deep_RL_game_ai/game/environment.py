@@ -9,13 +9,12 @@ class Environment(object):
     def __init__(self, config):
         self.grid = Grid(game_map=config['grid'])
         self.player = None
-        self.apple_list = None
+        self.apple_list = []
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
-
+        self.apple_eaten = 0
         self.timestep_index = 0
-        self.total_time_in_episode = 0.
         self.current_action = None
         # self.stats = EpisodeStatistics()
         # self.debug_file = None
@@ -34,14 +33,15 @@ class Environment(object):
     def new_episode(self):
         """Reset the environment and begin a new episode"""
         self.grid.create_grid()
+        self.apple_eaten = 0
         # self.stats.reset()
         self.timestep_index = 0
-        self.total_time_in_episode = 0.
         self.player = Player(self.grid.find_player())
         self.grid.place_player(self.player)
         self.current_action = None
         self.is_game_over = False
-        # self.generate_apples()
+        self.generate_apples()
+        self.grid.place_apples(self.apple_list)
 
     def choose_action(self, action):
         """
@@ -80,11 +80,33 @@ class Environment(object):
         else:
             self.player.stand_still()
 
+    def generate_apples(self, size=3, start=np.array([0, 0])):
+        """
+        add apples of the diamond shape with given size
+        :param size: the size of diamond
+        :param start: the starting point of the diamond in 
+                        the left-bottom corner
+        :return: the added apple
+        """
+        l = size * 2 - 1
+        top = start + l - 1
+        for idx in range(size - 1):
+            for i in range(idx * 2 + 1):
+                y = top[0] - idx
+                x = start[1] + size - 1 - idx + i
+                self.apple_list.append(Apple(Point(x, y)))
+        for idx in range(size - 1, -1, -1):
+            for i in range(idx * 2 + 1):
+                y = start[0] + idx
+                x = start[1] + size - 1 - idx + i
+                self.apple_list.append(Apple(Point(x, y)))
+
     def update_grid(self):
         """
         In this method, we assume the next position/direction of the player
-        is correct
+        is valid
         """
+
         # Clear the cell for the front of the player
         if self.grid[self.player.current_front] == CellType.PLAYER_FRONT:
             self.grid[self.player.current_front] = CellType.EMPTY
@@ -98,12 +120,23 @@ class Environment(object):
         # Place the player in the new position
         self.grid.place_player(self.player)
 
+        # Place the apples
+        self.grid.place_apples(self.apple_list)
+
+
     def move(self):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
         """
         self.timestep_index += 1
+
+        # If any apple can be respawn?
+        for apple in self.apple_list:
+            if apple.is_collected:
+                if self.timestep_index - apple.collected_time \
+                 >= GameSetting.APPLE_RESPAWN_TIME:
+                    apple.respawn()
 
         # if the next position is the wall
         # the player is forced back to the current position
@@ -122,3 +155,11 @@ class Environment(object):
             self.player.next_position.y = self.grid.height - 1
 
         self.update_grid()
+
+        # Check if the player is about to collect any apple
+        for apple in self.apple_list:
+            if not apple.is_collected and apple.position == self.player.position:
+                apple.get_collected(self.timestep_index)
+                self.apple_eaten += 1
+
+        print(self.apple_eaten)

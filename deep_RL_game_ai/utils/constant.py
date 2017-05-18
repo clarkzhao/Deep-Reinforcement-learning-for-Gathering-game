@@ -65,4 +65,4 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 100
     HUMAN_TIMESTEP_DELAY = 500
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 3
+    APPLE_RESPAWN_TIME = 1000  # timesteps

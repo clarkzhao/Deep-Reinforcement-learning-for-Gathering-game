@@ -83,7 +83,7 @@ class GatheringGUI():
             # next_position, next_direction = self.env.choose_action(action)
             # self.env.timestep(next_position, next_direction)
 
-            # Render.
+            # Draw all cells
             self.draw_all_cells()
             pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)

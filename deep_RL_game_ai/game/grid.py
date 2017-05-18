@@ -77,6 +77,12 @@ class Grid(object):
             if self[(x, y)] == CellType.EMPTY
         }
 
+    def return_grid(self):
+        """
+        :return: The 2d grid 
+        """
+        return self._cells
+
     def find_player(self):
         """ 
         Find the snake's head on the field. 
@@ -97,19 +103,8 @@ class Grid(object):
         if self[front_position] not in [CellType.APPLE, CellType.WALL]:
             self[front_position] = CellType.PLAYER_FRONT
 
-    # def update_cells(self, player: Player):
-    #     """
-    #     Update grid cells according to new player position
-    #
-    #     :param old_position: position of the player before the move
-    #     :param new_position: position of the player after the move
-    #     :return: NONE
-    #     """
-    #     if self[player.current_front] == CellType.PLAYER_FRONT:
-    #         self[player.current_front] = CellType.EMPTY
-    #
-    #     self[player.] = CellType.EMPTY
-    #     self[new_position] = CellType.PLAYER
-    #     print(self[new_front])
-    #     if self[new_front] not in [CellType.APPLE, CellType.WALL]:
-    #         self[new_front] = CellType.PLAYER_FRONT
+    def place_apples(self, apple_list):
+        for apple in apple_list:
+            if not apple.is_collected:
+                if self[apple.position] not in [CellType.PLAYER, CellType.WALL]:
+                    self[apple.position] = CellType.APPLE
