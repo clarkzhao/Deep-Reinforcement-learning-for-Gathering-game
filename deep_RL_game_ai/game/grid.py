@@ -17,7 +17,8 @@ class Grid(object):
         # 2D numpy array
         self._cells = None
 
-        self._empty_cells = set()
+        # self._empty_cells = set()
+        self._beam_cells = set()
 
         self._map_to_cell_type = {
             'P': CellType.PLAYER,
@@ -41,11 +42,11 @@ class Grid(object):
         self._cells[y, x] = cell_type
 
         # Do some internal bookkeeping to not rely on random selection of blank cells.
-        if cell_type == CellType.EMPTY:
-            self._empty_cells.add(point)
+        if cell_type == CellType.BEAM:
+            self._beam_cells.add(point)
         else:
-            if point in self._empty_cells:
-                self._empty_cells.remove(point)
+            if point in self._beam_cells:
+                self._beam_cells.remove(point)
 
     def __str__(self):
         return '\n'.join(
@@ -100,7 +101,7 @@ class Grid(object):
 
     def update_front_of_player(self, player):
         front_position = player.current_front
-        if self[front_position] not in [CellType.APPLE, CellType.WALL]:
+        if self[front_position] not in [CellType.APPLE, CellType.WALL, CellType.BEAM]:
             self[front_position] = CellType.PLAYER_FRONT
 
     def place_apples(self, apple_list):
@@ -108,3 +109,36 @@ class Grid(object):
             if not apple.is_collected:
                 if self[apple.position] not in [CellType.PLAYER, CellType.WALL]:
                     self[apple.position] = CellType.APPLE
+
+    def update_beam_area(self, x, y):
+        if self[x, y] in (CellType.EMPTY, CellType.PLAYER_FRONT):
+            self[x, y] = CellType.BEAM
+
+    def place_beam_area(self, player: Player):
+        """
+            Place the beam area according to the player's direction
+        :param player: The player in the grid
+        """
+        if player.direction == PlayerDirection.NORTH:
+            for yy in np.arange(player.position.y):
+                self.update_beam_area(player.position.x, yy)
+        elif player.direction == PlayerDirection.SOUTH:
+            for yy in np.arange(player.position.y+1, self.height):
+                self.update_beam_area(player.position.x, yy)
+        elif player.direction == PlayerDirection.EAST:
+            for xx in np.arange(player.position.x+1, self.width):
+                self.update_beam_area(xx, player.position.y)
+        else:
+            for xx in np.arange(player.position.x):
+                self.update_beam_area(xx, player.position.y)
+
+    def clear_beam_area(self):
+        """
+            Clear the stored beam area
+        """
+        # To avoid python error of "set changed size during iteration"
+        point_list = []
+        for point in self._beam_cells:
+            point_list.append(point)
+        for point in point_list:
+            self[point] = CellType.EMPTY

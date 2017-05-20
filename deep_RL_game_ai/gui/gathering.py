@@ -6,16 +6,6 @@ import pygame
 
 
 class GatheringGUI():
-    GAME_CONTROL_KEYS = [
-        pygame.K_UP,
-        pygame.K_LEFT,
-        pygame.K_DOWN,
-        pygame.K_RIGHT,
-        pygame.K_q,
-        pygame.K_e,
-        pygame.K_SPACE,
-        pygame.K_z
-    ]
 
     def __init__(self):
         pygame.init()
@@ -69,7 +59,7 @@ class GatheringGUI():
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key in self.GAME_CONTROL_KEYS:
+                    if event.key in GAME_CONTROL_KEYS:
                         action = self.map_key_to_action(event.key)
 
                 if event.type == pygame.QUIT:
@@ -80,8 +70,6 @@ class GatheringGUI():
             timestep_timed_out = self.timestep_watch.time() >= timestep_delay
             self.env.choose_action(action)
             self.env.move()
-            # next_position, next_direction = self.env.choose_action(action)
-            # self.env.timestep(next_position, next_direction)
 
             # Draw all cells
             self.draw_all_cells()
@@ -100,7 +88,7 @@ class GatheringGUI():
             PlayerAction.USE_BEAM,
             PlayerAction.STAND_STILL
         ]
-        key_idx = self.GAME_CONTROL_KEYS.index(key)
+        key_idx = GAME_CONTROL_KEYS.index(key)
         return actions[key_idx]
 
 if __name__ == '__main__':

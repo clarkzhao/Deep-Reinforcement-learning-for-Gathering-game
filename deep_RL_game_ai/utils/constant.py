@@ -9,16 +9,17 @@ class CellType(object):
     PLAYER = 2
     PLAYER_FRONT = 3
     WALL = 4
-
+    BEAM = 5
 
 class Colors:
 
     SCREEN_BACKGROUND = (10, 10, 10)  # BLACK
     CELL_TYPE = {
-        CellType.WALL: (150, 150, 150),  # GRAY
+        CellType.WALL: (125, 125, 125),  # GRAY
         CellType.PLAYER_FRONT: (50, 50, 50),  # DARK GRAY
         CellType.PLAYER: (0, 0, 255),  # BLUE
         CellType.APPLE: (0, 255, 0),  # GREEN
+        CellType.BEAM: (255, 204, 51),  # Yellow
     }
 
 
@@ -65,4 +66,15 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 100
     HUMAN_TIMESTEP_DELAY = 500
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 1000  # timesteps
+    APPLE_RESPAWN_TIME = 100  # timesteps
+
+GAME_CONTROL_KEYS = [
+    pygame.K_UP,
+    pygame.K_LEFT,
+    pygame.K_DOWN,
+    pygame.K_RIGHT,
+    pygame.K_q,
+    pygame.K_e,
+    pygame.K_SPACE,
+    pygame.K_z
+]

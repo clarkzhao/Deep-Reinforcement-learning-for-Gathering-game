@@ -80,7 +80,7 @@ class Environment(object):
         else:
             self.player.stand_still()
 
-    def generate_apples(self, size=3, start=np.array([0, 0])):
+    def generate_apples(self, size=3, start=np.array([3,6])):
         """
         add apples of the diamond shape with given size
         :param size: the size of diamond
@@ -106,6 +106,7 @@ class Environment(object):
         In this method, we assume the next position/direction of the player
         is valid
         """
+        # Clear the cell for the beam
 
         # Clear the cell for the front of the player
         if self.grid[self.player.current_front] == CellType.PLAYER_FRONT:
@@ -123,6 +124,11 @@ class Environment(object):
         # Place the apples
         self.grid.place_apples(self.apple_list)
 
+        # Update the beam area
+        if self.player.using_beam:
+            self.grid.place_beam_area(self.player)
+        else:
+            self.grid.clear_beam_area()
 
     def move(self):
         """
@@ -154,6 +160,7 @@ class Environment(object):
         elif self.player.next_position.y >= self.grid.width:
             self.player.next_position.y = self.grid.height - 1
 
+        # Update the grid for correct Celltype
         self.update_grid()
 
         # Check if the player is about to collect any apple
@@ -161,5 +168,6 @@ class Environment(object):
             if not apple.is_collected and apple.position == self.player.position:
                 apple.get_collected(self.timestep_index)
                 self.apple_eaten += 1
+                print("Apple eaten:", self.apple_eaten)
 
-        print(self.apple_eaten)
+

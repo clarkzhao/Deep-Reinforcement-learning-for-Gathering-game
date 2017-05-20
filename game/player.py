@@ -35,7 +35,6 @@ class Player:
 
     def move(self):
         """move the player"""
-        print(self.delta_row)
         # Move left/right
         self.row += self.delta_row
 
