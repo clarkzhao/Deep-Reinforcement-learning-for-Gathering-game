@@ -1,0 +1,21 @@
+
+
+class Agent(object):
+    """The basic agent class for the game of gathering and wolfpack"""
+
+    def begin_episode(self):
+        """Start a new episode"""
+        # raise NotImplementedError
+        pass
+
+    def act(self):
+        """ Called at each loop iteration to choose and execute an action.
+
+        Returns:
+            None
+        """
+        # raise NotImplementedError
+        pass
+
+from .human import HumanAgent
+from .random_agent import RandomAgent

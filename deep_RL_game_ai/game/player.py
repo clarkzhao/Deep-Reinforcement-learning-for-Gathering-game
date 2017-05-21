@@ -15,6 +15,8 @@ class Player(object):
         self.next_position = self.position
         self.next_direction = self.direction
         self.using_beam = False
+        self.is_tagged = False
+        self.num_hit_by_beam = 0
 
     @property
     def current_front(self):

@@ -9,6 +9,8 @@ class Environment(object):
     def __init__(self, config):
         self.grid = Grid(game_map=config['grid'])
         self.player = None
+        self.player_list = []
+        # self.player2 = None
         self.apple_list = []
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
@@ -42,6 +44,9 @@ class Environment(object):
         self.is_game_over = False
         self.generate_apples()
         self.grid.place_apples(self.apple_list)
+
+    def get_states(self):
+        return self.grid.get_grid()
 
     def choose_action(self, action):
         """
@@ -107,6 +112,7 @@ class Environment(object):
         is valid
         """
         # Clear the cell for the beam
+        self.grid.clear_beam_area()
 
         # Clear the cell for the front of the player
         if self.grid[self.player.current_front] == CellType.PLAYER_FRONT:
@@ -127,8 +133,8 @@ class Environment(object):
         # Update the beam area
         if self.player.using_beam:
             self.grid.place_beam_area(self.player)
-        else:
-            self.grid.clear_beam_area()
+        # else:
+            # self.grid.clear_beam_area()
 
     def move(self):
         """
@@ -146,7 +152,7 @@ class Environment(object):
 
         # if the next position is the wall
         # the player is forced back to the current position
-        if self.grid[self.player.next_position] in [CellType.WALL]:
+        if self.grid[self.player.next_position] in [CellType.WALL, CellType.PLAYER]:
             self.player.next_position = self.player.position
 
         # if the next position is outside the 2D grid

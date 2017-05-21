@@ -17,7 +17,6 @@ class Grid(object):
         # 2D numpy array
         self._cells = None
 
-        # self._empty_cells = set()
         self._beam_cells = set()
 
         self._map_to_cell_type = {
@@ -78,11 +77,11 @@ class Grid(object):
             if self[(x, y)] == CellType.EMPTY
         }
 
-    def return_grid(self):
+    def get_grid(self):
         """
         :return: The 2d grid 
         """
-        return self._cells
+        return np.copy(self._cells)
 
     def find_player(self):
         """ 
