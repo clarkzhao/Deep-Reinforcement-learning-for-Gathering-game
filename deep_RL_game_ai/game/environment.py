@@ -10,14 +10,13 @@ class Environment(object):
         self.grid = Grid(game_map=config['grid'])
         self.player = None
         self.player_list = []
-        # self.player2 = None
         self.apple_list = []
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
         self.apple_eaten = 0
         self.timestep_index = 0
-        self.current_action = None
+        # self.current_action = None
         # self.stats = EpisodeStatistics()
         # self.debug_file = None
         # self.stats_file = None
@@ -38,9 +37,11 @@ class Environment(object):
         self.apple_eaten = 0
         # self.stats.reset()
         self.timestep_index = 0
-        self.player = Player(self.grid.find_player())
-        self.grid.place_player(self.player)
-        self.current_action = None
+        for point in self.grid.find_player():
+            self.player_list.append(Player(point))
+        for player in self.player_list:
+            self.grid.place_player(player)
+        # self.current_action = None
         self.is_game_over = False
         self.generate_apples()
         self.grid.place_apples(self.apple_list)
@@ -48,42 +49,35 @@ class Environment(object):
     def get_states(self):
         return self.grid.get_grid()
 
-    def choose_action(self, action):
+    def take_action(self, action, player: Player):
         """
         the action is taken and the next position/direction of the player is defined here
         but they will be changed in further methods 
         """
-        self.current_action = action
+        # self.current_action = action
         if action == PlayerAction.USE_BEAM:
-            self.player.use_beam()
-            # next_direction = self.player.direction
+            player.use_beam()
 
         elif action == PlayerAction.STEP_FORWARD:
-            self.player.step_forward()
-            # next_direction = self.player.direction
+            player.step_forward()
 
         elif action == PlayerAction.STEP_BACKWARD:
-            self.player.step_backward()
-            # next_direction = self.player.direction
+            player.step_backward()
 
         elif action == PlayerAction.STEP_LEFT:
-            self.player.step_left()
-            # next_direction = self.player.direction
+            player.step_left()
 
         elif action == PlayerAction.STEP_RIGHT:
-            self.player.step_right()
-            # next_direction = self.player.direction
+            player.step_right()
 
         elif action == PlayerAction.ROTATE_CLOCKWISE:
-            self.player.rotate_clockwise()
-            # next_position = self.player.position
+            player.rotate_clockwise()
 
         elif action == PlayerAction.ROTATE_COUNTERCLOCKWISE:
-            self.player.rotate_counterclockwise()
-            # next_position = self.player.position
+            player.rotate_counterclockwise()
 
         else:
-            self.player.stand_still()
+            player.stand_still()
 
     def generate_apples(self, size=3, start=np.array([3,6])):
         """
@@ -106,37 +100,37 @@ class Environment(object):
                 x = start[1] + size - 1 - idx + i
                 self.apple_list.append(Apple(Point(x, y)))
 
-    def update_grid(self):
+    def update_grid(self, player: Player):
         """
         In this method, we assume the next position/direction of the player
         is valid
         """
         # Clear the cell for the beam
-        self.grid.clear_beam_area()
+        # self.grid.clear_beam_area()
 
         # Clear the cell for the front of the player
-        if self.grid[self.player.current_front] == CellType.PLAYER_FRONT:
-            self.grid[self.player.current_front] = CellType.EMPTY
+        if self.grid[player.current_front] == CellType.PLAYER_FRONT:
+            self.grid[player.current_front] = CellType.EMPTY
 
         # Clear the cell for the current position of the player
-        self.grid[self.player.position] = CellType.EMPTY
+        self.grid[player.position] = CellType.EMPTY
 
         # Move the player
-        self.player.move()
+        player.move()
 
         # Place the player in the new position
-        self.grid.place_player(self.player)
+        self.grid.place_player(player)
 
         # Place the apples
         self.grid.place_apples(self.apple_list)
 
         # Update the beam area
-        if self.player.using_beam:
-            self.grid.place_beam_area(self.player)
+        if player.using_beam:
+            self.grid.place_beam_area(player)
         # else:
             # self.grid.clear_beam_area()
 
-    def move(self):
+    def move(self, player: Player):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
@@ -152,28 +146,27 @@ class Environment(object):
 
         # if the next position is the wall
         # the player is forced back to the current position
-        if self.grid[self.player.next_position] in [CellType.WALL, CellType.PLAYER]:
-            self.player.next_position = self.player.position
+        if self.grid[player.next_position] in [CellType.WALL, CellType.PLAYER]:
+            player.next_position = player.position
 
         # if the next position is outside the 2D grid
         # the player is forced to be on the edge of the grid
-        if self.player.next_position.x < 0:
-            self.player.next_position.x = 0
-        elif self.player.next_position.x >= self.grid.width:
-            self.player.next_position.x = self.grid.width - 1
-        if self.player.next_position.y < 0:
-            self.player.next_position.y = 0
-        elif self.player.next_position.y >= self.grid.width:
-            self.player.next_position.y = self.grid.height - 1
+        if player.next_position.x < 0:
+            player.next_position.x = 0
+        elif player.next_position.x >= self.grid.width:
+            player.next_position.x = self.grid.width - 1
+        if player.next_position.y < 0:
+            player.next_position.y = 0
+        elif player.next_position.y >= self.grid.width:
+            player.next_position.y = self.grid.height - 1
 
-        # Update the grid for correct Celltype
-        self.update_grid()
+        # Update the grid to correct Celltype
+        self.update_grid(player)
 
         # Check if the player is about to collect any apple
         for apple in self.apple_list:
-            if not apple.is_collected and apple.position == self.player.position:
+            if not apple.is_collected and apple.position == player.position:
                 apple.get_collected(self.timestep_index)
                 self.apple_eaten += 1
                 print("Apple eaten:", self.apple_eaten)
-
 

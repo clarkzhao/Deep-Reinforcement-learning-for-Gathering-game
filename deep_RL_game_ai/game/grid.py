@@ -87,12 +87,19 @@ class Grid(object):
         """ 
         Find the snake's head on the field. 
         
-        :return: the location of player
+        :return: the location list of all players
         """
+        point_list = []
         for y in range(self.height):
             for x in range(self.width):
                 if self[(x, y)] == CellType.PLAYER:
-                    return Point(x, y)
+                    point_list.append(Point(x, y))
+        return point_list
+
+    def place_player_list(self, player_list):
+        for player in player_list:
+            self[player.position] = CellType.PLAYER
+            self.update_front_of_player(player)
 
     def place_player(self, player: Player):
         self[player.position] = CellType.PLAYER
@@ -100,7 +107,7 @@ class Grid(object):
 
     def update_front_of_player(self, player):
         front_position = player.current_front
-        if self[front_position] not in [CellType.APPLE, CellType.WALL, CellType.BEAM]:
+        if self[front_position] not in [CellType.APPLE, CellType.WALL, CellType.BEAM, CellType.PLAYER]:
             self[front_position] = CellType.PLAYER_FRONT
 
     def place_apples(self, apple_list):

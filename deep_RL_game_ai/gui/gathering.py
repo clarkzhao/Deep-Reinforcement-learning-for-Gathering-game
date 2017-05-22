@@ -15,7 +15,8 @@ class GatheringGUI():
         self.screen = None
         self.fps_clock = None
         self.env = None
-        self.agent = HumanAgent()
+        # self.agent = HumanAgent()
+        self.agent_list = []
         self.timestep_watch = Stopwatch()
 
     def set_up(self):
@@ -27,9 +28,10 @@ class GatheringGUI():
         self.screen.fill(Colors.SCREEN_BACKGROUND)
         pygame.display.set_caption('Gathering')
 
-    def load_agent(self, agent):
+    def load_agent(self, agent1, agent2):
         """ Load the RL agent into the Game GUI. """
-        self.agent = agent
+        self.agent_list.append(agent1)
+        self.agent_list.append(agent2)
 
     def draw_one_cell(self, x, y):
         """ Draw the cell specified by the field coordinates. """
@@ -58,22 +60,27 @@ class GatheringGUI():
         # Initialize the environment.
         self.timestep_watch.reset()
         self.env.new_episode()
-        self.agent.begin_episode()
 
+        for agent in self.agent_list:
+            agent.begin_episode()
 
         # A flag for whether the agent is controlled by human
-        is_human = isinstance(self.agent, HumanAgent)
-        timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
+        # is_human = isinstance(self.agent, HumanAgent)
+        # timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
+        timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY
 
         # Main game loop.
         running = True
         while running:
-            action = PlayerAction.STAND_STILL
+            for agent in self.agent_list:
+                agent.action = PlayerAction.STAND_STILL
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if is_human and event.key in GAME_CONTROL_KEYS:
-                        action = self.map_key_to_action(event.key)
+                    if event.key in GAME_CONTROL_KEYS:
+                        for agent in self.agent_list:
+                            if agent.is_human:
+                                agent.action = self.map_key_to_action(event.key)
 
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -81,19 +88,29 @@ class GatheringGUI():
 
             # Update game state.
             timestep_timed_out = self.timestep_watch.time() >= timestep_delay
-            human_made_move = is_human and action != PlayerAction.STAND_STILL
+
+            # If human made any move make the environment update
+            human_made_move = False
+            for agent in self.agent_list:
+                if agent.is_human:
+                    if agent.action != PlayerAction.STAND_STILL:
+                        human_made_move = True
+                    else:
+                        human_made_move = False
 
             if timestep_timed_out or human_made_move:
                 self.timestep_watch.reset()
-
-                if not is_human:
-                    action = self.agent.act()
-
-                self.env.choose_action(action)
-                self.env.move()
+                i = 0
+                for agent in self.agent_list:
+                    if not agent.is_human:
+                        agent.action = agent.act()
+                    self.env.take_action(agent.action, self.env.player_list[i])
+                    self.env.move(self.env.player_list[i])
+                    i += 1
 
             # Draw all cells
             self.draw_all_cells()
+            self.env.grid.clear_beam_area()
             pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
 
@@ -116,5 +133,5 @@ if __name__ == '__main__':
     gatheringGame = GatheringGUI()
     gatheringGame.set_up()
     # If you want to try random agent
-    # gatheringGame.load_agent(RandomAgent())
+    gatheringGame.load_agent(HumanAgent(), RandomAgent())
     gatheringGame.run_episode()

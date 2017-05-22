@@ -11,6 +11,7 @@ class CellType(object):
     WALL = 4
     BEAM = 5
     OPPONENT = 6
+    OPPONENT_FRONT = 7
 
 class Colors:
 
@@ -20,6 +21,7 @@ class Colors:
         CellType.PLAYER_FRONT: (50, 50, 50),  # DARK GRAY
         CellType.PLAYER: (0, 0, 255),  # BLUE
         CellType.OPPONENT: (255, 0, 0),  # RED
+        CellType.OPPONENT_FRONT: (50, 50, 50),  # DARK GRAY
         CellType.APPLE: (0, 255, 0),  # GREEN
         CellType.BEAM: (255, 204, 51),  # Yellow
     }
@@ -68,7 +70,7 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 100
     HUMAN_TIMESTEP_DELAY = 100
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 100  # timesteps
+    APPLE_RESPAWN_TIME = 10  # timesteps
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

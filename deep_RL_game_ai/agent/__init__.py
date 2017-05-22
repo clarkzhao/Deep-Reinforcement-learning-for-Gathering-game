@@ -1,12 +1,16 @@
+from utils.constant import PlayerAction
 
 
 class Agent(object):
     """The basic agent class for the game of gathering and wolfpack"""
+    def __init__(self):
+        self.action = None
 
     def begin_episode(self):
         """Start a new episode"""
         # raise NotImplementedError
-        pass
+        self.action = PlayerAction.STAND_STILL
+        # self.player = player
 
     def act(self):
         """ Called at each loop iteration to choose and execute an action.

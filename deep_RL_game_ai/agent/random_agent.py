@@ -10,10 +10,16 @@ class RandomAgent(Agent):
     """
 
     def __init__(self):
+        super(RandomAgent, self).__init__()
+        self.is_human = False
         pass
 
     def begin_episode(self):
+        super(RandomAgent, self).begin_episode()
         pass
 
     def act(self):
         return random.choice(ALL_PLAYER_ACTIONS)
+
+    def __str__(self):
+        return "random agent"
