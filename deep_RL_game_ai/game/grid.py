@@ -17,7 +17,8 @@ class Grid(object):
         # 2D numpy array
         self._cells = None
 
-        self._beam_cells = set()
+        self._beam_cells = set()  # Represents the beam cells in the grid
+        self.beam_area = set()  # Represent the beam cells including the player but not shown in the grid
 
         self._map_to_cell_type = {
             'P': CellType.PLAYER,
@@ -83,6 +84,9 @@ class Grid(object):
         """
         return np.copy(self._cells)
 
+    def get_beam_area(self):
+        return self.beam_area.copy()
+
     def find_player(self):
         """ 
         Find the snake's head on the field. 
@@ -102,8 +106,14 @@ class Grid(object):
             self.update_front_of_player(player)
 
     def place_player(self, player: Player):
-        self[player.position] = CellType.PLAYER
-        self.update_front_of_player(player)
+        if not player.is_tagged:
+            self[player.position] = CellType.PLAYER
+            self.update_front_of_player(player)
+
+    def clear_player(self, player: Player):
+        self[player.position] = CellType.BEAM
+        if self[player.current_front] == CellType.PLAYER_FRONT:
+            self[player.current_front] = CellType.EMPTY
 
     def update_front_of_player(self, player):
         front_position = player.current_front
@@ -117,6 +127,7 @@ class Grid(object):
                     self[apple.position] = CellType.APPLE
 
     def update_beam_area(self, x, y):
+        self.beam_area.add(Point(x, y))
         if self[x, y] in (CellType.EMPTY, CellType.PLAYER_FRONT):
             self[x, y] = CellType.BEAM
 
@@ -143,8 +154,15 @@ class Grid(object):
             Clear the stored beam area
         """
         # To avoid python error of "set changed size during iteration"
+        self.beam_area.clear()
         point_list = []
         for point in self._beam_cells:
             point_list.append(point)
         for point in point_list:
             self[point] = CellType.EMPTY
+
+    def is_in_beam_area(self, position):
+        if position in self.beam_area:
+            return True
+        else:
+            return False

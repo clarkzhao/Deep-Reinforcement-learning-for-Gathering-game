@@ -14,8 +14,7 @@ class Environment(object):
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
-        self.apple_eaten = 0
-        self.timestep_index = 0
+        self.time_watch = Stopwatch()
         # self.current_action = None
         # self.stats = EpisodeStatistics()
         # self.debug_file = None
@@ -33,14 +32,17 @@ class Environment(object):
 
     def new_episode(self):
         """Reset the environment and begin a new episode"""
+        self.time_watch.reset()
         self.grid.create_grid()
-        self.apple_eaten = 0
         # self.stats.reset()
-        self.timestep_index = 0
         for point in self.grid.find_player():
             self.player_list.append(Player(point))
+        idx = 1
         for player in self.player_list:
             self.grid.place_player(player)
+            player.new_episode()
+            player.idx = idx
+            idx += 1
         # self.current_action = None
         self.is_game_over = False
         self.generate_apples()
@@ -119,7 +121,8 @@ class Environment(object):
         player.move()
 
         # Place the player in the new position
-        self.grid.place_player(player)
+        if not player.is_tagged:
+            self.grid.place_player(player)
 
         # Place the apples
         self.grid.place_apples(self.apple_list)
@@ -127,22 +130,36 @@ class Environment(object):
         # Update the beam area
         if player.using_beam:
             self.grid.place_beam_area(player)
-        # else:
-            # self.grid.clear_beam_area()
+            # Check if the player is hit by the beam
+            for possible_player in self.player_list:
+                if self.grid.is_in_beam_area(possible_player.position):
+                    print("Hit by beam!!!")
+                    possible_player.get_hit(self.time_watch.time())
+                    print("number of hit:", possible_player.num_hit_by_beam)
+                    if possible_player.is_tagged:
+                        self.grid.clear_player(possible_player)
+
 
     def move(self, player: Player):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
         """
-        self.timestep_index += 1
 
         # If any apple can be respawn?
         for apple in self.apple_list:
             if apple.is_collected:
-                if self.timestep_index - apple.collected_time \
-                 >= GameSetting.APPLE_RESPAWN_TIME:
+                if self.time_watch.time() - apple.collected_time \
+                            >= GameSetting.APPLE_RESPAWN_TIME:
                     apple.respawn()
+
+        # If any player can be respawn?
+        for possible_player in self.player_list:
+            if possible_player.is_tagged:
+                if self.time_watch.time() - possible_player.tagged_time \
+                            >= GameSetting.TAGGED_TIME:
+                    possible_player.respawn()
+                    self.grid.place_player(possible_player)
 
         # if the next position is the wall
         # the player is forced back to the current position
@@ -166,7 +183,7 @@ class Environment(object):
         # Check if the player is about to collect any apple
         for apple in self.apple_list:
             if not apple.is_collected and apple.position == player.position:
-                apple.get_collected(self.timestep_index)
-                self.apple_eaten += 1
-                print("Apple eaten:", self.apple_eaten)
+                apple.get_collected(self.time_watch.time())
+                player.apple_eaten += 1
+                print("Player", player.idx, ", Apple eaten:", player.apple_eaten)
 

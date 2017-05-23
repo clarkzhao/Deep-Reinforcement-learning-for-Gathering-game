@@ -70,7 +70,8 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 100
     HUMAN_TIMESTEP_DELAY = 100
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 10  # timesteps
+    APPLE_RESPAWN_TIME = 1000 # milliseconds
+    TAGGED_TIME = 10000 # milliseconds
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

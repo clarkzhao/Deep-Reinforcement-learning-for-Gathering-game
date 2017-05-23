@@ -98,7 +98,15 @@ class GatheringGUI():
                     else:
                         human_made_move = False
 
-            if timestep_timed_out or human_made_move:
+            if human_made_move:
+                i = 0
+                for agent in self.agent_list:
+                    if agent.is_human:
+                        self.env.take_action(agent.action, self.env.player_list[i])
+                        self.env.move(self.env.player_list[i])
+                    i += 1
+
+            if timestep_timed_out:
                 self.timestep_watch.reset()
                 i = 0
                 for agent in self.agent_list:
@@ -113,6 +121,7 @@ class GatheringGUI():
             self.env.grid.clear_beam_area()
             pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
+
 
     def map_key_to_action(self, key):
         """ Convert a keystroke to an environment action. """
