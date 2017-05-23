@@ -5,6 +5,7 @@ class Agent(object):
     """The basic agent class for the game of gathering and wolfpack"""
     def __init__(self):
         self.action = None
+        self.player_idx = None
 
     def begin_episode(self):
         """Start a new episode"""

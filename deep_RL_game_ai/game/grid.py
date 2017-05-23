@@ -26,6 +26,7 @@ class Grid(object):
             '#': CellType.WALL,
             'A': CellType.APPLE,
             '.': CellType.EMPTY,
+            '-': CellType.BEAM,
         }
         self._cell_type_to_map = {
             cell_type: symbol
@@ -106,9 +107,8 @@ class Grid(object):
             self.update_front_of_player(player)
 
     def place_player(self, player: Player):
-        if not player.is_tagged:
-            self[player.position] = CellType.PLAYER
-            self.update_front_of_player(player)
+        self[player.position] = CellType.PLAYER
+        self.update_front_of_player(player)
 
     def clear_player(self, player: Player):
         self[player.position] = CellType.BEAM
@@ -166,3 +166,11 @@ class Grid(object):
             return True
         else:
             return False
+
+    def copy_cells(self):
+        return np.copy(self._cells)
+
+
+
+
+

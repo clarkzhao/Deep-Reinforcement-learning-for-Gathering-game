@@ -11,7 +11,7 @@ class CellType(object):
     WALL = 4
     BEAM = 5
     OPPONENT = 6
-    OPPONENT_FRONT = 7
+    AGENT = 7
 
 class Colors:
 
@@ -20,8 +20,8 @@ class Colors:
         CellType.WALL: (125, 125, 125),  # GRAY
         CellType.PLAYER_FRONT: (50, 50, 50),  # DARK GRAY
         CellType.PLAYER: (0, 0, 255),  # BLUE
+        CellType.AGENT: (0, 0, 255),  # BLUE
         CellType.OPPONENT: (255, 0, 0),  # RED
-        CellType.OPPONENT_FRONT: (50, 50, 50),  # DARK GRAY
         CellType.APPLE: (0, 255, 0),  # GREEN
         CellType.BEAM: (255, 204, 51),  # Yellow
     }
@@ -68,9 +68,9 @@ ALL_PLAYER_ACTIONS = [
 class GameSetting(object):
     FPS_LIMIT = 60
     AI_TIMESTEP_DELAY = 100
-    HUMAN_TIMESTEP_DELAY = 100
+    HUMAN_TIMESTEP_DELAY = 500
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 1000 # milliseconds
+    APPLE_RESPAWN_TIME = 10000 # milliseconds
     TAGGED_TIME = 10000 # milliseconds
 
 GAME_CONTROL_KEYS = [

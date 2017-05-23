@@ -8,6 +8,7 @@ class Environment(object):
 
     def __init__(self, config):
         self.grid = Grid(game_map=config['grid'])
+        self.view_array = None
         self.player = None
         self.player_list = []
         self.apple_list = []
@@ -57,29 +58,30 @@ class Environment(object):
         but they will be changed in further methods 
         """
         # self.current_action = action
-        if action == PlayerAction.USE_BEAM:
-            player.use_beam()
+        if not player.is_tagged:
+            if action == PlayerAction.USE_BEAM:
+                player.use_beam()
 
-        elif action == PlayerAction.STEP_FORWARD:
-            player.step_forward()
+            elif action == PlayerAction.STEP_FORWARD:
+                player.step_forward()
 
-        elif action == PlayerAction.STEP_BACKWARD:
-            player.step_backward()
+            elif action == PlayerAction.STEP_BACKWARD:
+                player.step_backward()
 
-        elif action == PlayerAction.STEP_LEFT:
-            player.step_left()
+            elif action == PlayerAction.STEP_LEFT:
+                player.step_left()
 
-        elif action == PlayerAction.STEP_RIGHT:
-            player.step_right()
+            elif action == PlayerAction.STEP_RIGHT:
+                player.step_right()
 
-        elif action == PlayerAction.ROTATE_CLOCKWISE:
-            player.rotate_clockwise()
+            elif action == PlayerAction.ROTATE_CLOCKWISE:
+                player.rotate_clockwise()
 
-        elif action == PlayerAction.ROTATE_COUNTERCLOCKWISE:
-            player.rotate_counterclockwise()
+            elif action == PlayerAction.ROTATE_COUNTERCLOCKWISE:
+                player.rotate_counterclockwise()
 
-        else:
-            player.stand_still()
+            else:
+                player.stand_still()
 
     def generate_apples(self, size=3, start=np.array([3,6])):
         """
@@ -110,18 +112,19 @@ class Environment(object):
         # Clear the cell for the beam
         # self.grid.clear_beam_area()
 
-        # Clear the cell for the front of the player
-        if self.grid[player.current_front] == CellType.PLAYER_FRONT:
-            self.grid[player.current_front] = CellType.EMPTY
-
-        # Clear the cell for the current position of the player
-        self.grid[player.position] = CellType.EMPTY
-
-        # Move the player
-        player.move()
-
-        # Place the player in the new position
         if not player.is_tagged:
+
+            # Clear the cell for the front of the player
+            if self.grid[player.current_front] == CellType.PLAYER_FRONT:
+                self.grid[player.current_front] = CellType.EMPTY
+
+            # Clear the cell for the current position of the player
+            self.grid[player.position] = CellType.EMPTY
+
+            # Move the player
+            player.move()
+
+            # Place the player in the new position
             self.grid.place_player(player)
 
         # Place the apples
@@ -133,9 +136,10 @@ class Environment(object):
             # Check if the player is hit by the beam
             for possible_player in self.player_list:
                 if self.grid.is_in_beam_area(possible_player.position):
-                    print("Hit by beam!!!")
-                    possible_player.get_hit(self.time_watch.time())
-                    print("number of hit:", possible_player.num_hit_by_beam)
+                    if not possible_player.is_tagged:
+                        print("Hit by beam!!!")
+                        possible_player.get_hit(self.time_watch.time())
+                        print("number of hit:", possible_player.num_hit_by_beam)
                     if possible_player.is_tagged:
                         self.grid.clear_player(possible_player)
 
@@ -182,8 +186,16 @@ class Environment(object):
 
         # Check if the player is about to collect any apple
         for apple in self.apple_list:
-            if not apple.is_collected and apple.position == player.position:
+            if not apple.is_collected and apple.position == player.position and not player.is_tagged:
                 apple.get_collected(self.time_watch.time())
                 player.apple_eaten += 1
                 print("Player", player.idx, ", Apple eaten:", player.apple_eaten)
 
+    def convert_view(self):
+        self.view_array = self.grid.copy_cells()
+        for player in self.player_list:
+            if not player.is_tagged:
+                if player.is_agent:
+                    self.view_array[player.position.y, player.position.x] = CellType.AGENT
+                else:
+                    self.view_array[player.position.y, player.position.x] = CellType.OPPONENT

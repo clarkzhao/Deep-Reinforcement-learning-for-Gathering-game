@@ -30,6 +30,8 @@ class GatheringGUI():
 
     def load_agent(self, agent1, agent2):
         """ Load the RL agent into the Game GUI. """
+        agent1.player_idx = 0
+        agent2.player_idx = 1
         self.agent_list.append(agent1)
         self.agent_list.append(agent2)
 
@@ -47,11 +49,25 @@ class GatheringGUI():
             color = Colors.CELL_TYPE[self.env.grid[x, y]]
             pygame.draw.rect(self.screen, color, cell_coords)
 
+    def draw_a_cell(self, x, y):
+        """ Draw the cell specified by the field coordinates. """
+        cell_coords = pygame.Rect(
+            x * GameSetting.CELL_SIZE,
+            y * GameSetting.CELL_SIZE,
+            GameSetting.CELL_SIZE,
+            GameSetting.CELL_SIZE,
+        )
+        if self.env.view_array[y,x] == CellType.EMPTY:
+            pygame.draw.rect(self.screen, Colors.SCREEN_BACKGROUND, cell_coords)
+        else:
+            color = Colors.CELL_TYPE[self.env.view_array[y, x]]
+            pygame.draw.rect(self.screen, color, cell_coords)
+
     def draw_all_cells(self):
         """ Draw the entire game frame. """
         for x in range(self.env.grid.width):
             for y in range(self.env.grid.height):
-                self.draw_one_cell(x, y)
+                self.draw_a_cell(x, y)
 
     def run_episode(self):
         """ Run the GUI player for a single episode. """
@@ -64,8 +80,9 @@ class GatheringGUI():
         for agent in self.agent_list:
             agent.begin_episode()
 
+        # Determine who is agent and who is opponent?
+        self.env.player_list[0].is_agent = True
         # A flag for whether the agent is controlled by human
-        # is_human = isinstance(self.agent, HumanAgent)
         # timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
         timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY
 
@@ -98,30 +115,30 @@ class GatheringGUI():
                     else:
                         human_made_move = False
 
+            # If human made a move just update the environment for this action
             if human_made_move:
-                i = 0
                 for agent in self.agent_list:
                     if agent.is_human:
-                        self.env.take_action(agent.action, self.env.player_list[i])
-                        self.env.move(self.env.player_list[i])
-                    i += 1
+                        self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+                        self.env.move(self.env.player_list[agent.player_idx])
 
+            # Update the environment for all players' action
             if timestep_timed_out:
                 self.timestep_watch.reset()
-                i = 0
                 for agent in self.agent_list:
                     if not agent.is_human:
                         agent.action = agent.act()
-                    self.env.take_action(agent.action, self.env.player_list[i])
-                    self.env.move(self.env.player_list[i])
-                    i += 1
+                    self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+                    self.env.move(self.env.player_list[agent.player_idx])
 
+
+
+            self.env.convert_view()
             # Draw all cells
             self.draw_all_cells()
             self.env.grid.clear_beam_area()
             pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
-
 
     def map_key_to_action(self, key):
         """ Convert a keystroke to an environment action. """

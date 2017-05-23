@@ -20,7 +20,6 @@ class Player(object):
         self.tagged_time = 0.
         self.apple_eaten = 0
         self.is_agent = False  # The agent is represented by blue if True and red otherwise
-        self.idx = 0
 
     def new_episode(self):
         self.apple_eaten = 0
@@ -40,40 +39,34 @@ class Player(object):
         pass
 
     def step_forward(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            self.next_position = self.position + self.direction
+        self.using_beam = False
+        self.next_position = self.position + self.direction
 
     def step_backward(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            self.next_position = self.position - self.direction
+        self.using_beam = False
+        self.next_position = self.position - self.direction
 
     def rotate_clockwise(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            direction_idx = self.directions.index(self.direction)
-            self.next_direction = self.directions[(direction_idx + 1) % len(self.directions)]
+        self.using_beam = False
+        direction_idx = self.directions.index(self.direction)
+        self.next_direction = self.directions[(direction_idx + 1) % len(self.directions)]
 
     def rotate_counterclockwise(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            direction_idx = self.directions.index(self.direction)
-            self.next_direction = self.directions[(direction_idx - 1) % len(self.directions)]
+        self.using_beam = False
+        direction_idx = self.directions.index(self.direction)
+        self.next_direction = self.directions[(direction_idx - 1) % len(self.directions)]
 
     def step_left(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            direction_idx = self.directions.index(self.direction)
-            direction = self.directions[(direction_idx - 1) % len(self.directions)]
-            self.next_position = self.position + direction
+        self.using_beam = False
+        direction_idx = self.directions.index(self.direction)
+        direction = self.directions[(direction_idx - 1) % len(self.directions)]
+        self.next_position = self.position + direction
 
     def step_right(self):
-        if not self.check_tagged():
-            self.using_beam = False
-            direction_idx = self.directions.index(self.direction)
-            direction = self.directions[(direction_idx + 1) % len(self.directions)]
-            self.next_position = self.position + direction
+        self.using_beam = False
+        direction_idx = self.directions.index(self.direction)
+        direction = self.directions[(direction_idx + 1) % len(self.directions)]
+        self.next_position = self.position + direction
 
     def check_tagged(self):
         if self.is_tagged:
@@ -90,8 +83,7 @@ class Player(object):
         self.direction = self.next_direction
 
     def use_beam(self):
-        if not self.check_tagged():
-            self.using_beam = True
+        self.using_beam = True
 
     def is_position_moved(self):
         if self.next_position != self.position:
@@ -103,6 +95,7 @@ class Player(object):
         self.num_hit_by_beam += 1
         if self.num_hit_by_beam >= 2:
             self.num_hit_by_beam = 0
+            self.using_beam = False
             self.is_tagged = True
             self.tagged_time = time
 
