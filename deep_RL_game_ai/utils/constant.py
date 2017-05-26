@@ -64,11 +64,21 @@ ALL_PLAYER_ACTIONS = [
     PlayerAction.STAND_STILL,
 ]
 
+ALL_PREY_ACTIONS = [
+    PlayerAction.STEP_FORWARD,
+    PlayerAction.STEP_BACKWARD,
+    PlayerAction.STEP_LEFT,
+    PlayerAction.STEP_RIGHT,
+    PlayerAction.ROTATE_CLOCKWISE,
+    PlayerAction.ROTATE_COUNTERCLOCKWISE,
+    PlayerAction.STAND_STILL,
+]
+
 
 class GameSetting(object):
     FPS_LIMIT = 60
     AI_TIMESTEP_DELAY = 100
-    HUMAN_TIMESTEP_DELAY = 500
+    HUMAN_TIMESTEP_DELAY = 50
     CELL_SIZE = 20
     APPLE_RESPAWN_TIME = 10000 # milliseconds
     TAGGED_TIME = 10000 # milliseconds

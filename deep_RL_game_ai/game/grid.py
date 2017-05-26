@@ -1,6 +1,7 @@
 from utils.constant import *
 import numpy as np
 from .player import *
+import random
 
 class Grid(object):
     """ Represent the playing grid of the game"""
@@ -19,7 +20,7 @@ class Grid(object):
 
         self._beam_cells = set()  # Represents the beam cells in the grid
         self.beam_area = set()  # Represent the beam cells including the player but not shown in the grid
-
+        self._empty_cells = set()
         self._map_to_cell_type = {
             'P': CellType.PLAYER,
             'f': CellType.PLAYER_FRONT,
@@ -48,6 +49,12 @@ class Grid(object):
         else:
             if point in self._beam_cells:
                 self._beam_cells.remove(point)
+
+        if cell_type == CellType.EMPTY:
+            self._empty_cells.add(point)
+        else:
+            if point in self._empty_cells:
+                self._empty_cells.remove(point)
 
     def __str__(self):
         return '\n'.join(
@@ -168,8 +175,13 @@ class Grid(object):
             return False
 
     def copy_cells(self):
+        """        
+        :return: Return the numpy array of the 2d cells
+        """
         return np.copy(self._cells)
 
+    def generate_random_player_position(self, num_player):
+        return random.sample(self._empty_cells, num_player)
 
 
 

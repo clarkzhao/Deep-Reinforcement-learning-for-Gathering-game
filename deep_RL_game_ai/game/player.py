@@ -20,6 +20,8 @@ class Player(object):
         self.tagged_time = 0.
         self.apple_eaten = 0
         self.is_agent = False  # The agent is represented by blue if True and red otherwise
+        self.idx = 0
+        self.is_prey = False
 
     def new_episode(self):
         self.apple_eaten = 0

@@ -1,35 +1,10 @@
-import random
-from .grid import *
-from .player import *
-from .apple import *
+from .base_env import *
 
-
-class Environment(object):
+class EnvironmentGathering(EnvironmentBase):
 
     def __init__(self, config):
-        self.grid = Grid(game_map=config['grid'])
-        self.view_array = None
-        self.player = None
-        self.player_list = []
+        super(EnvironmentGathering, self).__init__(config)
         self.apple_list = []
-        self.rewards = config['rewards']
-        self.max_step_limit = config.get('max_step_limit', 1000)
-        self.is_game_over = False
-        self.time_watch = Stopwatch()
-        # self.current_action = None
-        # self.stats = EpisodeStatistics()
-        # self.debug_file = None
-        # self.stats_file = None
-
-    def seed(self, value):
-        """ Initialize the random state of the environment to make results reproducible. """
-        random.seed(value)
-        np.random.seed(value)
-
-    @property
-    def num_actions(self):
-        """ Get the number of actions the agent can take. """
-        return len(ALL_PLAYER_ACTIONS)
 
     def new_episode(self):
         """Reset the environment and begin a new episode"""
@@ -49,41 +24,8 @@ class Environment(object):
         self.generate_apples()
         self.grid.place_apples(self.apple_list)
 
-    def get_states(self):
-        return self.grid.get_grid()
 
-    def take_action(self, action, player: Player):
-        """
-        the action is taken and the next position/direction of the player is defined here
-        but they will be changed in further methods 
-        """
-        # self.current_action = action
-        if not player.is_tagged:
-            if action == PlayerAction.USE_BEAM:
-                player.use_beam()
-
-            elif action == PlayerAction.STEP_FORWARD:
-                player.step_forward()
-
-            elif action == PlayerAction.STEP_BACKWARD:
-                player.step_backward()
-
-            elif action == PlayerAction.STEP_LEFT:
-                player.step_left()
-
-            elif action == PlayerAction.STEP_RIGHT:
-                player.step_right()
-
-            elif action == PlayerAction.ROTATE_CLOCKWISE:
-                player.rotate_clockwise()
-
-            elif action == PlayerAction.ROTATE_COUNTERCLOCKWISE:
-                player.rotate_counterclockwise()
-
-            else:
-                player.stand_still()
-
-    def generate_apples(self, size=3, start=np.array([3,6])):
+    def generate_apples(self, size=3, start=np.array([4,14])):
         """
         add apples of the diamond shape with given size
         :param size: the size of diamond
@@ -190,12 +132,3 @@ class Environment(object):
                 apple.get_collected(self.time_watch.time())
                 player.apple_eaten += 1
                 print("Player", player.idx, ", Apple eaten:", player.apple_eaten)
-
-    def convert_view(self):
-        self.view_array = self.grid.copy_cells()
-        for player in self.player_list:
-            if not player.is_tagged:
-                if player.is_agent:
-                    self.view_array[player.position.y, player.position.x] = CellType.AGENT
-                else:
-                    self.view_array[player.position.y, player.position.x] = CellType.OPPONENT
