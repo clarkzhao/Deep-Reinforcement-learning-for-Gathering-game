@@ -10,7 +10,6 @@ class WolfpackGUI(GUIBase):
     def __init__(self):
         super(WolfpackGUI, self).__init__()
 
-
     def set_up(self):
         with open('wolfpack.json') as cfg:
             env_config = json.load(cfg)
@@ -19,3 +18,9 @@ class WolfpackGUI(GUIBase):
         self.screen = pygame.display.set_mode(screen_size)
         self.screen.fill(Colors.SCREEN_BACKGROUND)
         pygame.display.set_caption('Wolfpack')
+
+    def draw_all_cells(self):
+        """ Draw the entire game frame. """
+        for x in range(self.env.grid.width):
+            for y in range(self.env.grid.height):
+                self.draw_a_cell(x, y)

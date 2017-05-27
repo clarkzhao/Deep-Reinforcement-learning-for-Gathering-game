@@ -72,14 +72,7 @@ class EnvironmentBase(object):
         pass
 
     def convert_view(self):
-        """Convert the player cells in grid to different colours"""
-        self.view_array = self.grid.copy_cells()
-        for player in self.player_list:
-            if not player.is_tagged:
-                if player.is_agent:
-                    self.view_array[player.position.y, player.position.x] = CellType.AGENT
-                else:
-                    self.view_array[player.position.y, player.position.x] = CellType.OPPONENT
+        raise NotImplementedError
 
 
 

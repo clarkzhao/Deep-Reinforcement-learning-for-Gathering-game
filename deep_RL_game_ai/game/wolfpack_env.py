@@ -12,7 +12,7 @@ class EnvironmentWolfpack(EnvironmentBase):
         # Generate two random players as wolves
         for point in self.grid.generate_random_player_position(num_player=3):
             self.player_list.append(Player(point))
-        idx = 1
+        idx = 0
         for player in self.player_list:
             self.grid.place_player(player)
             player.new_episode()
@@ -68,8 +68,14 @@ class EnvironmentWolfpack(EnvironmentBase):
 
         # if the next position is the wall
         # the player is forced back to the current position
-        if self.grid[player.next_position] in [CellType.WALL, CellType.PLAYER]:
+        if self.grid[player.next_position] in [CellType.WALL]:
             player.next_position = player.position
+
+        if self.grid[player.next_position] in [CellType.PLAYER]:
+            for prey in self.player_list:
+                if prey.position == player.next_position:
+                    if not prey.is_prey:
+                        player.next_position = player.position
 
         # if the next position is outside the 2D grid
         # the player is forced to be on the edge of the grid
@@ -85,3 +91,21 @@ class EnvironmentWolfpack(EnvironmentBase):
         # Update the grid to correct Celltype
         self.update_grid(player)
 
+        # Check if the player is about to hunt the prey
+        for prey in self.player_list:
+            if player.idx != prey.idx:
+                if prey.is_prey and prey.position == player.position and not player.is_tagged:
+                    print("Player", player.idx, ", prey is hunted")
+                    self.is_game_over = True
+                    prey.is_tagged = True
+                    self.grid.clear_player(prey)
+
+    def convert_view(self):
+        """Convert the player cells in grid to different colours"""
+        self.view_array = self.grid.copy_cells()
+        for player in self.player_list:
+            if not player.is_tagged:
+                if player.is_prey:
+                    self.view_array[player.position.y, player.position.x] = CellType.PLAYER
+                else:
+                    self.view_array[player.position.y, player.position.x] = CellType.OPPONENT

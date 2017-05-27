@@ -6,6 +6,7 @@ class Agent(object):
     def __init__(self):
         self.action = None
         self.player_idx = None
+        self.is_prey = False
 
     def begin_episode(self):
         """Start a new episode"""
@@ -19,8 +20,7 @@ class Agent(object):
         Returns:
             None
         """
-        # raise NotImplementedError
-        pass
+        raise NotImplementedError
 
 from .human import HumanAgent
 from .random_agent import RandomAgent

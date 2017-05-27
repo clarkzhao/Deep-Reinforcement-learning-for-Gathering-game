@@ -78,7 +78,7 @@ ALL_PREY_ACTIONS = [
 class GameSetting(object):
     FPS_LIMIT = 60
     AI_TIMESTEP_DELAY = 100
-    HUMAN_TIMESTEP_DELAY = 50
+    HUMAN_TIMESTEP_DELAY = 1000
     CELL_SIZE = 20
     APPLE_RESPAWN_TIME = 10000 # milliseconds
     TAGGED_TIME = 10000 # milliseconds

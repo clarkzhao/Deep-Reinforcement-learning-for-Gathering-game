@@ -8,7 +8,6 @@ class HumanAgent(Agent):
     def __init__(self):
         super(HumanAgent, self).__init__()
         self.is_human = True
-        self.is_prey = False
         pass
 
     def begin_episode(self):

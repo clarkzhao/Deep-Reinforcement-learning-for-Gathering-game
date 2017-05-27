@@ -83,6 +83,8 @@ class GUIBase(object):
 
         for agent in self.agent_list:
             agent.begin_episode()
+            if agent.is_prey:
+                self.env.player_list[agent.player_idx].is_prey = True
 
         # Determine who is agent and who is opponent?
         self.env.player_list[0].is_agent = True

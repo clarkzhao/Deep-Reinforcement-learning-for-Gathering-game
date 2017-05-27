@@ -122,6 +122,10 @@ class Grid(object):
         if self[player.current_front] == CellType.PLAYER_FRONT:
             self[player.current_front] = CellType.EMPTY
 
+    def remove_player(self, player: Player):
+        if self[player.current_front] == CellType.PLAYER_FRONT:
+            self[player.current_front] = CellType.EMPTY
+
     def update_front_of_player(self, player):
         front_position = player.current_front
         if self[front_position] not in [CellType.APPLE, CellType.WALL, CellType.BEAM, CellType.PLAYER]:
