@@ -14,7 +14,7 @@ class HumanAgent(Agent):
         super(HumanAgent, self).begin_episode()
         pass
 
-    def act(self):
+    def act(self, observation):
         return PlayerAction.STAND_STILL
 
     def __str__(self):

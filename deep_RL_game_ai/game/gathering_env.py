@@ -19,10 +19,13 @@ class EnvironmentGathering(EnvironmentBase):
             player.new_episode()
             player.idx = idx
             idx += 1
-        # self.current_action = None
-        self.is_game_over = False
         self.generate_apples()
         self.grid.place_apples(self.apple_list)
+
+        # self.current_action = None
+        self.is_game_over = False
+
+        self.get_observation()
 
 
     def generate_apples(self, size=3, start=np.array([4,14])):
@@ -132,13 +135,3 @@ class EnvironmentGathering(EnvironmentBase):
                 apple.get_collected(self.time_watch.time())
                 player.apple_eaten += 1
                 print("Player", player.idx, ", Apple eaten:", player.apple_eaten)
-
-    def convert_view(self):
-        """Convert the player cells in grid to different colours"""
-        self.view_array = self.grid.copy_cells()
-        for player in self.player_list:
-            if not player.is_tagged:
-                if player.is_agent:
-                    self.view_array[player.position.y, player.position.x] = CellType.PLAYER
-                else:
-                    self.view_array[player.position.y, player.position.x] = CellType.OPPONENT

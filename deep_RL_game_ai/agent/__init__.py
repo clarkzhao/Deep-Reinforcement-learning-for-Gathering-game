@@ -14,7 +14,7 @@ class Agent(object):
         self.action = PlayerAction.STAND_STILL
         # self.player = player
 
-    def act(self):
+    def act(self, observation):
         """ Called at each loop iteration to choose and execute an action.
 
         Returns:

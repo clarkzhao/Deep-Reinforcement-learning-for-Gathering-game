@@ -28,6 +28,8 @@ class Grid(object):
             'A': CellType.APPLE,
             '.': CellType.EMPTY,
             '-': CellType.BEAM,
+            'O': CellType.OPPONENT,
+            'G': CellType.AGENT,
         }
         self._cell_type_to_map = {
             cell_type: symbol
@@ -107,11 +109,6 @@ class Grid(object):
                 if self[(x, y)] == CellType.PLAYER:
                     point_list.append(Point(x, y))
         return point_list
-
-    def place_player_list(self, player_list):
-        for player in player_list:
-            self[player.position] = CellType.PLAYER
-            self.update_front_of_player(player)
 
     def place_player(self, player: Player):
         self[player.position] = CellType.PLAYER

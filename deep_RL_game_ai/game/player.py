@@ -1,4 +1,5 @@
 from utils.constant import *
+import numpy as np
 
 
 class Player(object):
@@ -22,6 +23,7 @@ class Player(object):
         self.is_agent = False  # The agent is represented by blue if True and red otherwise
         self.idx = 0
         self.is_prey = False
+        self.observation = None
 
     def new_episode(self):
         self.apple_eaten = 0
@@ -110,3 +112,15 @@ class Player(object):
             return True
         else:
             return False
+
+    def convert_observation_to_rgb(self):
+
+        observation_rgb = np.zeros([3, GameSetting.player_view[0], GameSetting.player_view[1]], 'int')
+        for x in np.arange(self.observation.shape[0]):
+            for y in np.arange(self.observation.shape[1]):
+                if self.observation[x,y] == CellType.EMPTY:
+                    observation_rgb[:, x, y] = Colors.SCREEN_BACKGROUND
+                else:
+                    observation_rgb[:, x, y] = Colors.CELL_TYPE[self.observation[x, y]]
+
+        return observation_rgb

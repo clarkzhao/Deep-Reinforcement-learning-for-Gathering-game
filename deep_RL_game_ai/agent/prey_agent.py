@@ -18,7 +18,7 @@ class PreyAgent(Agent):
     def begin_episode(self):
         super(PreyAgent, self).begin_episode()
 
-    def act(self):
+    def act(self, observation):
         return random.choice(ALL_PREY_ACTIONS)
         # return PlayerAction.STAND_STILL
 

@@ -19,7 +19,7 @@ class RandomAgent(Agent):
         super(RandomAgent, self).begin_episode()
         pass
 
-    def act(self):
+    def act(self, observation):
         return random.choice(ALL_PLAYER_ACTIONS)
         # return PlayerAction.STAND_STILL
 

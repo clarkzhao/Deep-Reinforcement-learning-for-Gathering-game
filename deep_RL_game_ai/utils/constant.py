@@ -78,10 +78,11 @@ ALL_PREY_ACTIONS = [
 class GameSetting(object):
     FPS_LIMIT = 60
     AI_TIMESTEP_DELAY = 100
-    HUMAN_TIMESTEP_DELAY = 1000
+    HUMAN_TIMESTEP_DELAY = 100
     CELL_SIZE = 20
     APPLE_RESPAWN_TIME = 10000 # milliseconds
-    TAGGED_TIME = 10000 # milliseconds
+    TAGGED_TIME = 5000 # milliseconds
+    player_view = [16, 21]
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

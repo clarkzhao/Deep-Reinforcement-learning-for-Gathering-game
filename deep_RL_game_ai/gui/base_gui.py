@@ -56,7 +56,7 @@ class GUIBase(object):
         """ Draw the entire game frame. """
         for x in range(self.env.grid.width):
             for y in range(self.env.grid.height):
-                self.draw_one_cell(x, y)
+                self.draw_a_cell(x, y)
 
     def map_key_to_action(self, key):
         """ Convert a keystroke to an environment action. """
@@ -127,19 +127,25 @@ class GUIBase(object):
                     if agent.is_human:
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
                         self.env.move(self.env.player_list[agent.player_idx])
+                        self.env.get_observation()
+                        print(self.env.player_list[agent.player_idx].observation)
 
             # Update the environment for all players' action
             if timestep_timed_out:
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
                     if not agent.is_human:
-                        agent.action = agent.act()
+                        agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
                         self.env.move(self.env.player_list[agent.player_idx])
+                        self.env.get_observation()
 
-            self.env.convert_view()
+            for agent in self.agent_list:
+                if agent.is_human:
+                    self.env.convert_view(self.env.player_list[agent.player_idx])
             # Draw all cells
             self.draw_all_cells()
             self.env.grid.clear_beam_area()
+            self.env.update_front_of_players()
             pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)

@@ -19,8 +19,3 @@ class WolfpackGUI(GUIBase):
         self.screen.fill(Colors.SCREEN_BACKGROUND)
         pygame.display.set_caption('Wolfpack')
 
-    def draw_all_cells(self):
-        """ Draw the entire game frame. """
-        for x in range(self.env.grid.width):
-            for y in range(self.env.grid.height):
-                self.draw_a_cell(x, y)
