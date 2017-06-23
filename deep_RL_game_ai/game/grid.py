@@ -116,6 +116,7 @@ class Grid(object):
 
     def clear_player(self, player: Player):
         self[player.position] = CellType.BEAM
+        # self[player.position] = CellType.EMPTY
         if self[player.current_front] == CellType.PLAYER_FRONT:
             self[player.current_front] = CellType.EMPTY
 
@@ -134,10 +135,15 @@ class Grid(object):
                 if self[apple.position] not in [CellType.PLAYER, CellType.WALL]:
                     self[apple.position] = CellType.APPLE
 
-    def update_beam_area(self, x, y):
+    def add_beam_area(self, x, y):
         self.beam_area.add(Point(x, y))
-        if self[x, y] in (CellType.EMPTY, CellType.PLAYER_FRONT):
+        if self[x, y] in (CellType.PLAYER, CellType.EMPTY, CellType.PLAYER_FRONT):
             self[x, y] = CellType.BEAM
+
+    def empty_beam_area(self, x, y):
+        if self[x, y] == CellType.BEAM:
+            self.beam_area.remove(Point(x, y))
+            self[x, y] = CellType.EMPTY
 
     def place_beam_area(self, player: Player):
         """
@@ -146,16 +152,30 @@ class Grid(object):
         """
         if player.direction == PlayerDirection.NORTH:
             for yy in np.arange(player.position.y):
-                self.update_beam_area(player.position.x, yy)
+                self.add_beam_area(player.position.x, yy)
         elif player.direction == PlayerDirection.SOUTH:
             for yy in np.arange(player.position.y+1, self.height):
-                self.update_beam_area(player.position.x, yy)
+                self.add_beam_area(player.position.x, yy)
         elif player.direction == PlayerDirection.EAST:
             for xx in np.arange(player.position.x+1, self.width):
-                self.update_beam_area(xx, player.position.y)
+                self.add_beam_area(xx, player.position.y)
         else:
             for xx in np.arange(player.position.x):
-                self.update_beam_area(xx, player.position.y)
+                self.add_beam_area(xx, player.position.y)
+
+    def clear_beam(self, player):
+        if player.direction == PlayerDirection.NORTH:
+            for yy in np.arange(player.position.y):
+                self.empty_beam_area(player.position.x, yy)
+        elif player.direction == PlayerDirection.SOUTH:
+            for yy in np.arange(player.position.y+1, self.height):
+                self.empty_beam_area(player.position.x, yy)
+        elif player.direction == PlayerDirection.EAST:
+            for xx in np.arange(player.position.x+1, self.width):
+                self.empty_beam_area(xx, player.position.y)
+        else:
+            for xx in np.arange(player.position.x):
+                self.empty_beam_area(xx, player.position.y)
 
     def clear_beam_area(self):
         """

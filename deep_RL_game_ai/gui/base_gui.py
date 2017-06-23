@@ -2,6 +2,8 @@ from utils.constant import *
 
 import sys
 import pygame
+import matplotlib.pyplot as plt
+import numpy as np
 
 class GUIBase(object):
 
@@ -73,6 +75,11 @@ class GUIBase(object):
         key_idx = GAME_CONTROL_KEYS.index(key)
         return actions[key_idx]
 
+    def show(self, img):
+        plt.ion()
+        plt.imshow(np.transpose(img, (1, 2, 0)), interpolation='nearest')
+        plt.show()
+
     def run_episode(self):
         """ Run the GUI player for a single episode. """
         self.fps_clock = pygame.time.Clock()
@@ -128,12 +135,15 @@ class GUIBase(object):
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
                         self.env.move(self.env.player_list[agent.player_idx])
                         self.env.get_observation()
-                        print(self.env.player_list[agent.player_idx].observation)
+                        img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+                        self.show(img)
 
             # Update the environment for all players' action
             if timestep_timed_out:
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
+                    # if agent.is_human:
+                        # print(agent.action)
                     if not agent.is_human:
                         agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
@@ -143,9 +153,12 @@ class GUIBase(object):
             for agent in self.agent_list:
                 if agent.is_human:
                     self.env.convert_view(self.env.player_list[agent.player_idx])
+
+
             # Draw all cells
-            self.draw_all_cells()
+            if GameSetting.GUI:
+                self.draw_all_cells()
+                pygame.display.update()
             self.env.grid.clear_beam_area()
             self.env.update_front_of_players()
-            pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)

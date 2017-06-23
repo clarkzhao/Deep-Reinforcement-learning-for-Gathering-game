@@ -52,84 +52,55 @@ class EnvironmentGathering(EnvironmentBase):
     def update_grid(self, player: Player):
         """
         In this method, we assume the next position/direction of the player
-        is valid
+        is valid and the player and apples will be placed on the grid
         """
-        # Clear the cell for the beam
-        # self.grid.clear_beam_area()
 
-        if not player.is_tagged:
+        # Clear the cell for the front of the player
+        if self.grid[player.current_front] == CellType.PLAYER_FRONT:
+            self.grid[player.current_front] = CellType.EMPTY
 
-            # Clear the cell for the front of the player
-            if self.grid[player.current_front] == CellType.PLAYER_FRONT:
-                self.grid[player.current_front] = CellType.EMPTY
+        # Clear the cell for the current position of the player
+        self.grid[player.position] = CellType.EMPTY
 
-            # Clear the cell for the current position of the player
-            self.grid[player.position] = CellType.EMPTY
+        # Move the player
+        player.move()
 
-            # Move the player
-            player.move()
-
-            # Place the player in the new position
-            self.grid.place_player(player)
+        # Place the player in the new position
+        self.grid.place_player(player)
 
         # Place the apples
         self.grid.place_apples(self.apple_list)
-
-        # Update the beam area
-        if player.using_beam:
-            self.grid.place_beam_area(player)
-            # Check if the player is hit by the beam
-            for possible_player in self.player_list:
-                if self.grid.is_in_beam_area(possible_player.position):
-                    if not possible_player.is_tagged:
-                        print("Hit by beam!!!")
-                        possible_player.get_hit(self.time_watch.time())
-                        print("number of hit:", possible_player.num_hit_by_beam)
-                    if possible_player.is_tagged:
-                        self.grid.clear_player(possible_player)
-
 
     def move(self, player: Player):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
         """
+        self.respawn_apples()
+        self.respawn_player()
+        if not player.is_tagged:
+            self.put_player_back(player)
 
-        # If any apple can be respawn?
+        # Update the grid to correct Celltype
+            self.update_grid(player)
+            self.check_if_using_beam(player)
+            self.collect_apple(player)
+        # self.update_beam_area()
+
+    def respawn_apples(self):
+        """
+        the valid apple will be respawn in this method
+        """
         for apple in self.apple_list:
             if apple.is_collected:
                 if self.time_watch.time() - apple.collected_time \
                             >= GameSetting.APPLE_RESPAWN_TIME:
                     apple.respawn()
 
-        # If any player can be respawn?
-        for possible_player in self.player_list:
-            if possible_player.is_tagged:
-                if self.time_watch.time() - possible_player.tagged_time \
-                            >= GameSetting.TAGGED_TIME:
-                    possible_player.respawn()
-                    self.grid.place_player(possible_player)
-
-        # if the next position is the wall
-        # the player is forced back to the current position
-        if self.grid[player.next_position] in [CellType.WALL, CellType.PLAYER]:
-            player.next_position = player.position
-
-        # if the next position is outside the 2D grid
-        # the player is forced to be on the edge of the grid
-        if player.next_position.x < 0:
-            player.next_position.x = 0
-        elif player.next_position.x >= self.grid.width:
-            player.next_position.x = self.grid.width - 1
-        if player.next_position.y < 0:
-            player.next_position.y = 0
-        elif player.next_position.y >= self.grid.width:
-            player.next_position.y = self.grid.height - 1
-
-        # Update the grid to correct Celltype
-        self.update_grid(player)
-
-        # Check if the player is about to collect any apple
+    def collect_apple(self, player):
+        """
+        check if the player is about to collect any apple
+        """
         for apple in self.apple_list:
             if not apple.is_collected and apple.position == player.position and not player.is_tagged:
                 apple.get_collected(self.time_watch.time())
