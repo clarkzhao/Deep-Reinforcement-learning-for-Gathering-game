@@ -25,11 +25,13 @@ class Player(object):
         self.idx = 0
         self.is_prey = False
         self.observation = None
+        self.reward = 0  # Current reward
 
     def new_episode(self):
         self.apple_eaten = 0
         self.num_hit_by_beam = 0
         self.is_tagged = False
+        self.reward = 0
 
     @property
     def current_front(self):
@@ -78,7 +80,7 @@ class Player(object):
             self.next_position = self.position
             self.next_direction = self.direction
             self.using_beam = False
-            print("Cannot move because your are tagged")
+            # print("Cannot move because your are tagged")
             return True
         else:
             return False
@@ -116,12 +118,15 @@ class Player(object):
             return False
 
     def convert_observation_to_rgb(self):
-        observation_rgb = np.zeros([3, GameSetting.player_view[0], GameSetting.player_view[1]], 'int')
+        """
+        convert the grid map to images according to corresponding cell type
+        :return: the np.array with shape of (img_h, img_w, img_c) and data type of np.uint8
+        """
+        observation_rgb = np.zeros([GameSetting.player_view[0], GameSetting.player_view[1], DQNSetting.N_COLS], 'int')
         for x in np.arange(self.observation.shape[0]):
             for y in np.arange(self.observation.shape[1]):
-                if self.observation[x,y] == CellType.EMPTY:
-                    observation_rgb[:, x, y] = Colors.SCREEN_BACKGROUND
+                if self.observation[x, y] == CellType.EMPTY:
+                    observation_rgb[x, y, :] = Colors.SCREEN_BACKGROUND
                 else:
-                    observation_rgb[:, x, y] = Colors.CELL_TYPE[self.observation[x, y]]
-
+                    observation_rgb[x, y, :] = Colors.CELL_TYPE[self.observation[x, y]]
         return np.uint8(observation_rgb)

@@ -1,6 +1,6 @@
 from collections import namedtuple
 import pygame
-
+import logging
 
 class Point(namedtuple('PointTuple', ['x', 'y'])):
     """
@@ -44,3 +44,15 @@ class TimestepResult(object):
             for row in self.observation
         ])
         return f'{grid_map}\nR = {self.reward}   end={self.is_episode_end}\n'
+
+def loggerConfig(log_file):
+    logger = logging.getLogger()
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
+    # file_handler = logging.FileHandler(log_file, 'w')
+    # file_handler.setFormatter(formatter)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    # logger.addHandler(file_handler)
+    logger.addHandler(ch)
+    return logger

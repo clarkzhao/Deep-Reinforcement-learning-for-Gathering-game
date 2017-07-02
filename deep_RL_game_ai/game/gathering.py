@@ -1,4 +1,4 @@
-from .base_env import *
+from .environment import *
 
 class EnvironmentGathering(EnvironmentBase):
 
@@ -85,6 +85,7 @@ class EnvironmentGathering(EnvironmentBase):
             self.update_grid(player)
             self.check_if_using_beam(player)
             self.collect_apple(player)
+        self.get_observation()
         # self.update_beam_area()
 
     def respawn_apples(self):
@@ -101,8 +102,13 @@ class EnvironmentGathering(EnvironmentBase):
         """
         check if the player is about to collect any apple
         """
+        # A flag for the player collecting any apple
+        eaten_any_apple = False
         for apple in self.apple_list:
             if not apple.is_collected and apple.position == player.position and not player.is_tagged:
                 apple.get_collected(self.time_watch.time())
                 player.apple_eaten += 1
-                print("Player", player.idx, ", Apple eaten:", player.apple_eaten)
+                player.reward = 1
+                eaten_any_apple = True
+        if not eaten_any_apple:
+            player.reward = 0

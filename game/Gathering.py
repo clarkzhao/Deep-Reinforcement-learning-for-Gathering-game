@@ -88,7 +88,7 @@ class Gathering(arcade.Window):
         if 0 <= fro_row < constant.ROW_COUNT and 0 <= fro_col < constant.COLUMN_COUNT:
             if not self.check_apple(fro_row, fro_col):
                 self.grid[fro_row][fro_col] = constant.FRONT_OF_PLAYER
-
+        self.player.clear()
     @staticmethod
     def get_front_grid(direction, agent: player.Player):
         return {

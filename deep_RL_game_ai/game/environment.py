@@ -14,10 +14,6 @@ class EnvironmentBase(object):
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
         self.time_watch = Stopwatch()
-        # self.current_action = None
-        # self.stats = EpisodeStatistics()
-        # self.debug_file = None
-        # self.stats_file = None
 
     def seed(self, value):
         """ Initialize the random state of the environment to make results reproducible. """
@@ -184,8 +180,8 @@ class EnvironmentBase(object):
             for possible_player in self.player_list:
                 if self.grid.is_in_beam_area(possible_player.position):
                     if not possible_player.is_tagged:
-                        print("Hit by beam!!!")
+                        # print("Hit by beam!!!")
                         possible_player.get_hit(self.time_watch.time())
                     if possible_player.is_tagged:
-                        print("Player", possible_player.idx, "is tagged")
+                        # print("Player", possible_player.idx, "is tagged")
                         self.grid.clear_player(possible_player)

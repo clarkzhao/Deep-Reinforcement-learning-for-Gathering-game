@@ -1,9 +1,11 @@
 from utils.constant import *
-
+from game.wolfpack import *
+from game.gathering import *
 import sys
 import pygame
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 
 class GUIBase(object):
 
@@ -77,7 +79,7 @@ class GUIBase(object):
 
     def show(self, img):
         plt.ion()
-        plt.imshow(np.transpose(img, (1, 2, 0)), interpolation='nearest')
+        plt.imshow(img, interpolation='nearest')
         plt.show()
 
     def run_episode(self):
@@ -93,10 +95,7 @@ class GUIBase(object):
             if agent.is_prey:
                 self.env.player_list[agent.player_idx].is_prey = True
 
-        # Determine who is agent and who is opponent?
-        self.env.player_list[0].is_agent = True
         # A flag for whether the agent is controlled by human
-        # timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
         timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY
 
         # Main game loop.
@@ -134,16 +133,14 @@ class GUIBase(object):
                     if agent.is_human:
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
                         self.env.move(self.env.player_list[agent.player_idx])
-                        self.env.get_observation()
-                        img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
-                        self.show(img)
+                        # self.env.get_observation()
+                        # img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+                        # self.show(img)
 
             # Update the environment for all players' action
             if timestep_timed_out:
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
-                    # if agent.is_human:
-                        # print(agent.action)
                     if not agent.is_human:
                         agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
                         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
@@ -152,6 +149,8 @@ class GUIBase(object):
 
             for agent in self.agent_list:
                 if agent.is_human:
+                    img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+                    self.show(img)
                     self.env.convert_view(self.env.player_list[agent.player_idx])
 
 
@@ -162,3 +161,32 @@ class GUIBase(object):
             self.env.grid.clear_beam_area()
             self.env.update_front_of_players()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
+
+class GatheringGUI(GUIBase):
+
+    def __init__(self):
+        super(GatheringGUI, self).__init__()
+
+
+    def set_up(self):
+        with open('gathering.json') as cfg:
+            env_config = json.load(cfg)
+        self.env = EnvironmentGathering(env_config)
+        screen_size = (self.env.grid.width * GameSetting.CELL_SIZE, self.env.grid.height * GameSetting.CELL_SIZE)
+        self.screen = pygame.display.set_mode(screen_size)
+        self.screen.fill(Colors.SCREEN_BACKGROUND)
+        pygame.display.set_caption('Gathering')
+
+class WolfpackGUI(GUIBase):
+
+    def __init__(self):
+        super(WolfpackGUI, self).__init__()
+
+    def set_up(self):
+        with open('wolfpack.json') as cfg:
+            env_config = json.load(cfg)
+        self.env = EnvironmentWolfpack(env_config)
+        screen_size = (self.env.grid.width * GameSetting.CELL_SIZE, self.env.grid.height * GameSetting.CELL_SIZE)
+        self.screen = pygame.display.set_mode(screen_size)
+        self.screen.fill(Colors.SCREEN_BACKGROUND)
+        pygame.display.set_caption('Wolfpack')

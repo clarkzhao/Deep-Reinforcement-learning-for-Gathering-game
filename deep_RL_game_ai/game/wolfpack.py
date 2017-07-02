@@ -1,4 +1,4 @@
-from .base_env import *
+from .environment import *
 from .player import *
 
 class EnvironmentWolfpack(EnvironmentBase):
@@ -54,9 +54,9 @@ class EnvironmentWolfpack(EnvironmentBase):
             for possible_player in self.player_list:
                 if self.grid.is_in_beam_area(possible_player.position):
                     if not possible_player.is_tagged:
-                        print("Hit by beam!!!")
+                        # print("Hit by beam!!!")
                         possible_player.get_hit(self.time_watch.time())
-                        print("number of hit:", possible_player.num_hit_by_beam)
+                        # print("number of hit:", possible_player.num_hit_by_beam)
                     if possible_player.is_tagged:
                         self.grid.clear_player(possible_player)
 
@@ -96,7 +96,7 @@ class EnvironmentWolfpack(EnvironmentBase):
         for prey in self.player_list:
             if player.idx != prey.idx:
                 if prey.is_prey and prey.position == player.position and not player.is_tagged:
-                    print("Player", player.idx, ", prey is hunted")
+                    # print("Player", player.idx, ", prey is hunted")
                     self.is_game_over = True
                     prey.is_tagged = True
                     self.grid.clear_player(prey)

@@ -1,5 +1,6 @@
 from .utility import *
-
+import os
+import datetime
 
 class CellType(object):
     """ Defines all types of cells that can be found in the game. """
@@ -78,13 +79,32 @@ ALL_PREY_ACTIONS = [
 class GameSetting(object):
     FPS_LIMIT = 60
     AI_TIMESTEP_DELAY = 100
-    HUMAN_TIMESTEP_DELAY = 1000
+    HUMAN_TIMESTEP_DELAY = 250
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 10000 # milliseconds
-    TAGGED_TIME = 5000 # milliseconds
+    APPLE_RESPAWN_TIME = 10000  # milliseconds
+    TAGGED_TIME = 5000  # milliseconds
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
+    AGENT_VIEW_RANGE = [16, 21]
+
+class DQNSetting(object):
+    EPS_START = 1.0 # epsilon at the start
+    EPS_END = 0.1  # epsilon in the end
+    EPISODE_LENGTH = 1000  # number of steps in an episode
+    LR = 0.00025  # learning rate
+    GAMMA = 0.99  # discounted factor
+    MEMORY_SIZE = int(1e5)  # size of replay buffer
+    N_COLS = 3  # number of color channels in the input
+    N_HIST = 1  # length of history
+    BATCH_SIZE = 32  # how many transitions to sample each time from the memory buffer.
+    TARGET_UPDATE_FRE = 200
+    TOTAL_STEPS_PER_EPISODE = 10000
+    TOTAL_NUM_EPISODE = 2
+    LOG_FRE = 100
+    LEARNING_START_IN_EPISODE = 500
+    VISUAL = True
+
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,
@@ -96,3 +116,11 @@ GAME_CONTROL_KEYS = [
     pygame.K_SPACE,
     pygame.K_z
 ]
+
+class Params(object):
+    def __init__(self):
+        self.root_dir = os.getcwd()
+        self.timestamp = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
+        self.log_name = self.root_dir + "/logs/" + self.timestamp + ".log"
+        self.logger = loggerConfig(self.log_name)
+        self.logger.warning("<===================================>")

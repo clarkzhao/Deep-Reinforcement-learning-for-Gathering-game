@@ -56,6 +56,11 @@ class Player:
         # Rotate
         self.direction = (self.direction + self.delta_direction) % 4
 
+    def clear(self):
+        self.delta_col = 0
+        self.delta_row = 0
+        self.delta_direction = 0
+
     def get_reward(self):
         self.reward += 1
         print("Total reward: ", self.reward)
