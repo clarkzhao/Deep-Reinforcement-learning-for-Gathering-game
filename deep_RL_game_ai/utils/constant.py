@@ -47,6 +47,18 @@ class PlayerAction(object):
     ROTATE_COUNTERCLOCKWISE = 6
     STAND_STILL = 7
 
+    @staticmethod
+    def toString(a):
+        return {
+            0: 'STEP FORWARD',
+            1: 'STEP BACKWARD',
+            2: 'STEP LEFT',
+            3: 'STEP RIGHT',
+            4: 'USE BEAM',
+            5: 'ROTATE CLOCKWISE',
+            6: 'ROTATE COUNTERCLOCKWISE',
+            7: 'STAND STILL'}[a]
+
 ALL_PLAYER_DIRECTIONS = [
     PlayerDirection.NORTH,
     PlayerDirection.EAST,
@@ -78,32 +90,34 @@ ALL_PREY_ACTIONS = [
 
 class GameSetting(object):
     FPS_LIMIT = 60
-    AI_TIMESTEP_DELAY = 100
+    AI_TIMESTEP_DELAY = 1
     HUMAN_TIMESTEP_DELAY = 250
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 10000  # milliseconds
-    TAGGED_TIME = 5000  # milliseconds
+    APPLE_RESPAWN_TIME = 1000  # milliseconds
+    TAGGED_TIME = 500  # milliseconds
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
     AGENT_VIEW_RANGE = [16, 21]
 
 class DQNSetting(object):
-    EPS_START = 1.0 # epsilon at the start
+    EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
-    EPISODE_LENGTH = 1000  # number of steps in an episode
-    LR = 0.00025  # learning rate
+    EPS_DECAY_LEN = 10000  # number of steps for the epsilon to decay
+    EPS_EVAL = 0.  # epsilon for evaluation
+    LR = 0.0001  # learning rate
     GAMMA = 0.99  # discounted factor
     MEMORY_SIZE = int(1e5)  # size of replay buffer
     N_COLS = 3  # number of color channels in the input
     N_HIST = 1  # length of history
     BATCH_SIZE = 32  # how many transitions to sample each time from the memory buffer.
-    TARGET_UPDATE_FRE = 200
-    TOTAL_STEPS_PER_EPISODE = 10000
-    TOTAL_NUM_EPISODE = 2
-    LOG_FRE = 100
-    LEARNING_START_IN_EPISODE = 500
-    VISUAL = True
+    TARGET_UPDATE_FRE = 1000  # how many steps to update the target Q networks
+    TOTAL_STEPS_PER_EPISODE = 1000  # how many steps in an episode
+    TOTAL_NUM_EPISODE = 100  # how many number of episode to train on
+    EVAL_FRE = 4  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
+    LOG_FRE = 100  # how many steps to display the training information
+    LEARNING_START_IN_EPISODE = 500  # how many steps does the learning start in the first episode
+    VISUAL = False  # whether or not to render the game
 
 
 GAME_CONTROL_KEYS = [

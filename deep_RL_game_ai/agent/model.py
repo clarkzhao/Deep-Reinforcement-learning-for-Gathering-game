@@ -20,6 +20,7 @@ class DQN(nn.Module):
 
     def forward(self, x):
         """
+        the input batch of state is reshaped to (batch size, in_features = input channels * img_height * img_width)
         :param x: input shape are (batch size, input channels, img_height, img_width)
         :return:
         """

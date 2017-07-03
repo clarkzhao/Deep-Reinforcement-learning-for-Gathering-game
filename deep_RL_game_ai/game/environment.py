@@ -91,7 +91,8 @@ class EnvironmentBase(object):
                 y_min = 0 if player.position.y - 15 < 0 else player.position.y
                 y_max = player.position.y
                 area = grid[y_min:y_max + 1, x_min:x_max + 1]
-                observation[16 - area.shape[0]:, 10 - (player.position.x - x_min):10 + (x_max - player.position.x) + 1] = area
+                observation[16 - area.shape[0]:, 10 - (player.position.x - x_min):10 +
+                            (x_max - player.position.x) + 1] = area
 
             elif player.direction == PlayerDirection.SOUTH:
                 x_min = 0 if player.position.x - 10 < 0 else player.position.x - 10
@@ -102,7 +103,8 @@ class EnvironmentBase(object):
                     else player.position.y + 15
                 area = grid[y_min:y_max + 1, x_min:x_max + 1]
                 area = np.rot90(area, 2)
-                observation[16 - area.shape[0]:, 10 - (x_max - player.position.x):10 + (player.position.x - x_min) + 1] = area
+                observation[16 - area.shape[0]:, 10 - (x_max - player.position.x):10 +
+                            (player.position.x - x_min) + 1] = area
 
             elif player.direction == PlayerDirection.WEST:
                 x_min = 0 if player.position.x - 15 < 0 else player.position.x - 15
@@ -112,7 +114,8 @@ class EnvironmentBase(object):
                     else player.position.y + 10
                 area = grid[y_min:y_max + 1, x_min:x_max + 1]
                 area = np.rot90(area, 3)
-                observation[16 - area.shape[0]:, 10 - (y_max - player.position.y):10 + (player.position.y - y_min) + 1] = area
+                observation[16 - area.shape[0]:, 10 - (y_max - player.position.y):10 +
+                            (player.position.y - y_min) + 1] = area
 
             else:
                 x_min = player.position.x
@@ -123,7 +126,8 @@ class EnvironmentBase(object):
                     else player.position.y + 10
                 area = grid[y_min:y_max + 1, x_min:x_max + 1]
                 area = np.rot90(area, 1)
-                observation[16 - area.shape[0]:, 10 - (player.position.y - y_min):10 + (y_max - player.position.y) + 1] = area
+                observation[16 - area.shape[0]:, 10 - (player.position.y - y_min):10 +
+                            (y_max - player.position.y) + 1] = area
 
             player.observation = observation
 

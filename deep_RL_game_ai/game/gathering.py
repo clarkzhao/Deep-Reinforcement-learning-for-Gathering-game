@@ -8,6 +8,8 @@ class EnvironmentGathering(EnvironmentBase):
 
     def new_episode(self):
         """Reset the environment and begin a new episode"""
+        self.player_list = []
+        self.apple_list = []
         self.time_watch.reset()
         self.grid.create_grid()
         # self.stats.reset()
@@ -24,7 +26,6 @@ class EnvironmentGathering(EnvironmentBase):
 
         # self.current_action = None
         self.is_game_over = False
-
         self.get_observation()
 
 

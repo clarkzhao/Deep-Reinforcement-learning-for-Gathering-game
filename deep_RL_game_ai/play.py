@@ -13,6 +13,6 @@ if __name__ == '__main__':
     # If you want to try random agent
     # agent_list = [HumanAgent(), RandomAgent(), PreyAgent()]
     # agent_list = [HumanAgent(), RandomAgent()]
-    agent_list = [DQNAgent(), RandomAgent()]
+    agent_list = [DQNAgent(), DQNAgent()]
     Game.load_agent(agent_list)
-    Game.run_episode()
+    Game.train()

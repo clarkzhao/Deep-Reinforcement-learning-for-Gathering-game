@@ -1,12 +1,11 @@
 from agent import Agent
-from utils.constant import PlayerAction
 from .model import *
 from utils.constant import *
-import numpy as np
 import torch
 from torch.autograd import Variable
 import torch.optim as optim
 import random
+import numpy as np
 
 class DQNAgent(Agent):
     """The agent controller by human"""
@@ -15,13 +14,12 @@ class DQNAgent(Agent):
         super(DQNAgent, self).__init__()
         self.is_DQN = True
         # game environment
-        self.n_actions = len(ALL_PLAYER_ACTIONS)  # total number of actions
 
         # epsilon (exploration rate) annealing
         self.eps_start = DQNSetting.EPS_START
         self.eps = self.eps_start
         self.eps_end = DQNSetting.EPS_END
-        self.eps_len = DQNSetting.EPISODE_LENGTH
+        self.eps_len = DQNSetting.EPS_DECAY_LEN
 
         # Learning rate
         self.lr = DQNSetting.LR
@@ -54,9 +52,7 @@ class DQNAgent(Agent):
         self.optimizer = None
         self.training = True
         self.target_update_fre = DQNSetting.TARGET_UPDATE_FRE
-        # log agent information
-        self.action_stats = np.zeros(self.n_actions)
-        self.position_stats = None
+
 
     def get_Q_update(self, state, next_state, action, reward, term):
         """
@@ -96,7 +92,7 @@ class DQNAgent(Agent):
 
         return delta
 
-    def epsilon_greedy_policy(self, model, state, step ):
+    def epsilon_greedy_policy(self, model, state, step):
         """
         Perform epsilon greedy policy
         :param model: a DQN model
@@ -122,7 +118,6 @@ class DQNAgent(Agent):
 
     def begin_episode(self):
         super(DQNAgent, self).begin_episode()
-        self.total_reward = 0
         pass
 
     def act(self, observation):
@@ -177,6 +172,8 @@ class DQNAgent(Agent):
             if self.step % self.target_update_fre == 0:
                 self.target_q.load_state_dict(self.q_network.state_dict())
         return
+
+
 
     def __str__(self):
         return "dqn agent"
