@@ -26,6 +26,7 @@ class Player(object):
         self.is_prey = False
         self.observation = None
         self.reward = 0  # Current reward
+        self.initial_position = None
 
     def new_episode(self):
         self.apple_eaten = 0
@@ -80,7 +81,6 @@ class Player(object):
             self.next_position = self.position
             self.next_direction = self.direction
             self.using_beam = False
-            # print("Cannot move because your are tagged")
             return True
         else:
             return False
@@ -106,6 +106,10 @@ class Player(object):
             self.using_beam = False
             self.is_tagged = True
             self.tagged_time = time
+            # self.direction = PlayerDirection.NORTH
+            # self.position = None
+            # self.next_position = self.position
+            # self.next_position = PlayerDirection.NORTH
 
     def respawn(self):
         self.is_tagged = False

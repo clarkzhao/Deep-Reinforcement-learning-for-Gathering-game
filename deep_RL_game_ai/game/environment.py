@@ -62,10 +62,10 @@ class EnvironmentBase(object):
             else:
                 player.stand_still()
 
-    def update_grid(self, player: Player):
+    def update_grid(self, player):
         pass
 
-    def move(self, player: Player):
+    def move(self):
         pass
 
     def convert_view(self, input_player: Player):
@@ -73,7 +73,7 @@ class EnvironmentBase(object):
         self.view_array = self.grid.copy_cells()
         for player in self.player_list:
             if not player.is_tagged:
-                if player is input_player:
+                if player is input_player and self.view_array[player.position.y, player.position.x] == CellType.PLAYER:
                     self.view_array[player.position.y, player.position.x] = CellType.AGENT
                 else:
                     self.view_array[player.position.y, player.position.x] = CellType.OPPONENT
@@ -140,12 +140,11 @@ class EnvironmentBase(object):
             if not player.is_tagged:
                 self.grid.place_player(player)
 
-    def put_player_back(self, player):
+    def check_next_position(self, player):
         # if the next position is the wall
         # the player is forced back to the current position
         if self.grid[player.next_position] in [CellType.WALL, CellType.PLAYER]:
             player.next_position = player.position
-
         # if the next position is outside the 2D grid
         # the player is forced to be on the edge of the grid
         if player.next_position.x < 0:
@@ -164,7 +163,9 @@ class EnvironmentBase(object):
                 if self.time_watch.time() - player.tagged_time \
                             >= GameSetting.TAGGED_TIME:
                     player.respawn()
-                    self.grid.place_player(player)
+                    if self.grid[player.position] in [CellType.PLAYER]:
+                        player.position = INITIAL_POSITION_2
+                    # self.grid.place_player(player)
 
     def update_beam_area(self):
         for player in self.player_list:
@@ -186,6 +187,11 @@ class EnvironmentBase(object):
                     if not possible_player.is_tagged:
                         # print("Hit by beam!!!")
                         possible_player.get_hit(self.time_watch.time())
-                    if possible_player.is_tagged:
-                        # print("Player", possible_player.idx, "is tagged")
+                    # if possible_player.is_tagged:
+                    #     # print("Player", possible_player.idx, "is tagged")
                         self.grid.clear_player(possible_player)
+                        if possible_player.is_tagged:
+                            possible_player.position = possible_player.initial_position
+                            possible_player.direction = PlayerDirection.NORTH
+                            possible_player.next_position = possible_player.position
+                            possible_player.next_direction = possible_player.direction

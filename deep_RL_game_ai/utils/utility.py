@@ -48,11 +48,11 @@ class TimestepResult(object):
 def loggerConfig(log_file):
     logger = logging.getLogger()
     formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
-    # file_handler = logging.FileHandler(log_file, 'w')
-    # file_handler.setFormatter(formatter)
+    file_handler = logging.FileHandler(log_file, 'w')
+    file_handler.setFormatter(formatter)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
+    ch.setLevel(logging.DEBUG)
     ch.setFormatter(formatter)
-    # logger.addHandler(file_handler)
+    logger.addHandler(file_handler)
     logger.addHandler(ch)
     return logger

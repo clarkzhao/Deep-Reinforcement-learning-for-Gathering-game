@@ -19,7 +19,7 @@ class HumanAgent(Agent):
         pass
 
     def act(self, observation):
-        return PlayerAction.STAND_STILL
+        pass
 
     def __str__(self):
         return "human agent"

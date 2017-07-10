@@ -79,8 +79,14 @@ class GUIBase(object):
 
     def show(self, img):
         plt.ion()
+        plt.clf()
         plt.imshow(img, interpolation='nearest')
-        plt.show()
+        plt.draw()
+
+    def show_position(self, position_stats):
+        plt.ion()
+        plt.imshow(position_stats, cmap='hot', interpolation='nearest')
+        plt.draw()
 
     def run_episode(self):
         """ Run the GUI player for a single episode. """
@@ -104,62 +110,50 @@ class GUIBase(object):
             for agent in self.agent_list:
                 agent.action = PlayerAction.STAND_STILL
 
+            # Update for human's action
+            human_made_move = False
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key in GAME_CONTROL_KEYS:
                         for agent in self.agent_list:
                             if agent.is_human:
                                 agent.action = self.map_key_to_action(event.key)
-
+                                human_made_move = True
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
-            # Update game state.
-            timestep_timed_out = self.timestep_watch.time() >= timestep_delay
-
-            # If human made any move make the environment update
-            human_made_move = False
-            for agent in self.agent_list:
-                if agent.is_human:
-                    if agent.action != PlayerAction.STAND_STILL:
-                        human_made_move = True
-                    else:
-                        human_made_move = False
-
-            # If human made a move just update the environment for this action
-            if human_made_move:
-                for agent in self.agent_list:
-                    if agent.is_human:
-                        self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-                        self.env.move(self.env.player_list[agent.player_idx])
-                        # self.env.get_observation()
-                        # img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
-                        # self.show(img)
-
-            # Update the environment for all players' action
-            if timestep_timed_out:
+            # Update for AI's action
+            if self.timestep_watch.time() >= timestep_delay:
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
-                    if not agent.is_human:
-                        agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
-                        self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-                        self.env.move(self.env.player_list[agent.player_idx])
-                        self.env.get_observation()
+                    agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
+
+            for agent in self.agent_list:
+                self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+
+            # Update the environment
+            self.env.move()
 
             for agent in self.agent_list:
                 if agent.is_human:
-                    img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
-                    self.show(img)
+                    reward = self.env.player_list[agent.player_idx].reward
+                    agent.total_reward += reward
+                    # img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+                    # self.show(img)
                     self.env.convert_view(self.env.player_list[agent.player_idx])
+                    if reward != 0:
+                        print(agent.player_idx, reward)
+                        print("total reward: {}".format(agent.total_reward))
 
+            if human_made_move:
+                img = self.env.player_list[0].convert_observation_to_rgb()
+                self.show(img)
 
             # Draw all cells
             if GameSetting.GUI:
                 self.draw_all_cells()
                 pygame.display.update()
-            self.env.grid.clear_beam_area()
-            self.env.update_front_of_players()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
 
 class GatheringGUI(GUIBase):

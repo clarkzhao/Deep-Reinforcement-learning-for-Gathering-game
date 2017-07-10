@@ -15,6 +15,9 @@ class EnvironmentGathering(EnvironmentBase):
         # self.stats.reset()
         for point in self.grid.find_player():
             self.player_list.append(Player(point))
+            self.player_list[-1].initial_position = point
+            print(point)
+
         idx = 1
         for player in self.player_list:
             self.grid.place_player(player)
@@ -23,10 +26,10 @@ class EnvironmentGathering(EnvironmentBase):
             idx += 1
         self.generate_apples()
         self.grid.place_apples(self.apple_list)
-
         # self.current_action = None
         self.is_game_over = False
         self.get_observation()
+
 
 
     def generate_apples(self, size=3, start=np.array([4,14])):
@@ -50,7 +53,7 @@ class EnvironmentGathering(EnvironmentBase):
                 x = start[1] + size - 1 - idx + i
                 self.apple_list.append(Apple(Point(x, y)))
 
-    def update_grid(self, player: Player):
+    def update_grid(self, player):
         """
         In this method, we assume the next position/direction of the player
         is valid and the player and apples will be placed on the grid
@@ -66,26 +69,29 @@ class EnvironmentGathering(EnvironmentBase):
         # Move the player
         player.move()
 
-        # Place the player in the new position
-        self.grid.place_player(player)
-
         # Place the apples
         self.grid.place_apples(self.apple_list)
 
-    def move(self, player: Player):
+        # Place the player in the new position
+        self.grid.place_player(player)
+
+        self.collect_apple(player)
+
+
+    def move(self):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
         """
+        self.grid.clear_beam_area()
+        self.update_front_of_players()
         self.respawn_apples()
         self.respawn_player()
-        if not player.is_tagged:
-            self.put_player_back(player)
-
-        # Update the grid to correct Celltype
-            self.update_grid(player)
-            self.check_if_using_beam(player)
-            self.collect_apple(player)
+        for player in self.player_list:
+            if not player.is_tagged:
+                self.check_next_position(player)
+                self.update_grid(player)
+                self.check_if_using_beam(player)
         self.get_observation()
         # self.update_beam_area()
 
@@ -111,5 +117,6 @@ class EnvironmentGathering(EnvironmentBase):
                 player.apple_eaten += 1
                 player.reward = 1
                 eaten_any_apple = True
+                break
         if not eaten_any_apple:
             player.reward = 0

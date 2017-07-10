@@ -15,8 +15,8 @@ class Agent(object):
         self.n_actions = len(ALL_PLAYER_ACTIONS)  # total number of actions
 
         # log agent information
-        self.action_stats = np.zeros(self.n_actions)  # actions information in an episode
-        self.position_stats = None
+        self.action_stats = np.zeros(self.n_actions, dtype='int8')  # actions information in an episode
+        self.position_stats = np.zeros((13, 33), dtype='int')
 
 
     def begin_episode(self):
@@ -25,6 +25,7 @@ class Agent(object):
         self.action = PlayerAction.STAND_STILL
         self.total_reward = 0
         self.action_stats = np.zeros(self.n_actions)
+        self.position_stats = np.zeros((13, 33), dtype='int8')
         # self.player = player
 
     def act(self, observation):
@@ -39,6 +40,12 @@ class Agent(object):
         info = "\n"
         for action, value in enumerate(self.action_stats):
             info += PlayerAction.toString(action) + ': ' + str(value) + '\n'
+        return info
+
+    def display_position_stats(self):
+        info = '\n'.join(
+            ' '.join(str(j) for j in i)
+            for i in self.position_stats)
         return info
 
 from .basic import HumanAgent

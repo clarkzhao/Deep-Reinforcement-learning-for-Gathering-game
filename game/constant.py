@@ -15,7 +15,7 @@ SCREEN_WIDTH = (WIDTH + MARGIN) * COLUMN_COUNT + MARGIN
 SCREEN_HEIGHT = (HEIGHT + MARGIN) * ROW_COUNT + MARGIN
 
 # The time in second for the collected apple to recover
-RESPOWN_TIME = 1
+RESPOWN_TIME = 10
 
 # Digits in the grid
 EMPTY = 0
