@@ -15,7 +15,7 @@ class DQNAgent(Agent):
         self.is_DQN = True
         # game environment
 
-        # epsilon (exploration rate) annealing
+        # epsilon (exploration rate) anealing
         self.eps_start = DQNSetting.EPS_START
         self.eps = self.eps_start
         self.eps_end = DQNSetting.EPS_END

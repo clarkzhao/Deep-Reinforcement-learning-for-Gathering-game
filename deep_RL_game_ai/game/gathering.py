@@ -91,7 +91,8 @@ class EnvironmentGathering(EnvironmentBase):
             if not player.is_tagged:
                 self.check_next_position(player)
                 self.update_grid(player)
-                self.check_if_using_beam(player)
+
+        self.check_if_using_beam()
         self.get_observation()
         # self.update_beam_area()
 

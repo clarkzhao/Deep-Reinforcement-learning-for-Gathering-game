@@ -62,7 +62,7 @@ class GUIBase(object):
             for y in range(self.env.grid.height):
                 self.draw_a_cell(x, y)
 
-    def map_key_to_action(self, key):
+    def map_key_to_action(self, player_id, key):
         """ Convert a keystroke to an environment action. """
         actions = [
             PlayerAction.STEP_FORWARD,
@@ -74,7 +74,10 @@ class GUIBase(object):
             PlayerAction.USE_BEAM,
             PlayerAction.STAND_STILL
         ]
-        key_idx = GAME_CONTROL_KEYS.index(key)
+        if player_id == 0:
+            key_idx = GAME_CONTROL_KEYS.index(key)
+        else:
+            key_idx = GAME_CONTROL_KEYS_2.index(key)
         return actions[key_idx]
 
     def show(self, img):
@@ -115,10 +118,15 @@ class GUIBase(object):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key in GAME_CONTROL_KEYS:
+                        human_made_move = True
                         for agent in self.agent_list:
-                            if agent.is_human:
-                                agent.action = self.map_key_to_action(event.key)
-                                human_made_move = True
+                            if agent.is_human and agent.player_idx == 0:
+                                agent.action = self.map_key_to_action(0, event.key)
+                    if event.key in GAME_CONTROL_KEYS_2:
+                        human_made_move = True
+                        for agent in self.agent_list:
+                            if agent.is_human and agent.player_idx == 1:
+                                agent.action = self.map_key_to_action(1, event.key)
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -127,7 +135,8 @@ class GUIBase(object):
             if self.timestep_watch.time() >= timestep_delay:
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
-                    agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
+                    if not agent.is_human:
+                        agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
 
             for agent in self.agent_list:
                 self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
@@ -147,7 +156,7 @@ class GUIBase(object):
                         print("total reward: {}".format(agent.total_reward))
 
             if human_made_move:
-                img = self.env.player_list[0].convert_observation_to_rgb()
+                img = self.env.player_list[1].convert_observation_to_rgb()
                 self.show(img)
 
             # Draw all cells

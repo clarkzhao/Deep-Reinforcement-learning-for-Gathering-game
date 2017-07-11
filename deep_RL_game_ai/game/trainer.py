@@ -56,7 +56,7 @@ class AgentTrainer(object):
             agent.player_idx = idx
             idx += 1
             if agent.is_DQN:
-                agent.optimizer = agent.optim(agent.q_network.parameters(), lr=agent.lr)
+                agent.optimizer = agent.optim(agent.q_network.parameters(), lr=agent.lr, alpha=0.95, eps=0.01)
 
     def new_episode(self):
         self.timestep_watch.reset()
@@ -124,7 +124,7 @@ class AgentTrainer(object):
                     cur_reward = self.env.player_list[agent.player_idx].reward
                     agent.total_reward += cur_reward
                     if cur_reward != 0:
-                        print("step: " + str(agent.step) + " ID: " + str(agent.player_idx), cur_reward)
+                        print("step: " + str(self.step_in_an_episode) + " ID: " + str(agent.player_idx), cur_reward)
                         print("total reward: {}".format(agent.total_reward))
                     if agent.is_DQN:
                         term = not running
@@ -211,7 +211,7 @@ class AgentTrainer(object):
                     cur_reward = self.env.player_list[agent.player_idx].reward
                     agent.total_reward += cur_reward
                     if cur_reward != 0:
-                        print("step: " + str(agent.step) + " ID: " + str(agent.player_idx), cur_reward)
+                        print("step: " + str(self.step_in_an_episode) + " ID: " + str(agent.player_idx), cur_reward)
                         print("total reward: {}".format(agent.total_reward))
                     if agent.is_DQN:
                         term = not running
@@ -234,9 +234,12 @@ class AgentTrainer(object):
                 agent.action_log.append([self.episode, agent.action_stats])
                 self.logger.warning("Evaluation End Report @ EPISODE" + str(self.episode))
                 self.logger.warning("Evaluation EPISODE: {}: v_avg: {}".format(self.episode, agent.v_avg_log[-1][1]))
-                self.logger.warning("Evaluation EPISODE: {}: tderr_avg: {}".format(self.episode, agent.tderr_avg_log[-1][1]))
-                self.logger.warning("Evaluation EPISODE: {}: reward_avg: {}".format(self.episode, agent.reward_log[-1][1]))
-                self.logger.warning("Evaluation EPISODE: {}: action_dist: {}".format(self.episode, agent.action_log[-1][1]))
+                self.logger.warning("Evaluation EPISODE: {}: tderr_avg: {}".format(self.episode,
+                                                                                   agent.tderr_avg_log[-1][1]))
+                self.logger.warning("Evaluation EPISODE: {}: reward_avg: {}".format(self.episode,
+                                                                                    agent.reward_log[-1][1]))
+                self.logger.warning("Evaluation EPISODE: {}: Action distribution:".format(self.episode) +
+                                    agent.display_action_stats())
 
     def reset_stats(self):
         for agent in self.agent_list:

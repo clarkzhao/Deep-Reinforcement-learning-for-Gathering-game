@@ -95,8 +95,8 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 5
     HUMAN_TIMESTEP_DELAY = 200
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 1000  # milliseconds
-    TAGGED_TIME = 1000  # milliseconds
+    APPLE_RESPAWN_TIME = 10000  # milliseconds
+    TAGGED_TIME = 10000  # milliseconds
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
@@ -117,11 +117,11 @@ class DQNSetting(object):
     TARGET_UPDATE_FRE = 1000  # how many steps to update the target Q networks
     TOTAL_STEPS_PER_EPISODE = 1000  # how many steps in an episode
     TOTAL_NUM_EPISODE = 2000  # how many number of episode to train on
-    EVAL_FRE = 1  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
+    EVAL_FRE = 4  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
     LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
-    VISUAL_GUI = True  # whether or not to render the game
+    VISUAL_GUI = False  # whether or not to render the game
     CLIP_GRAD = 40.
     VISUAL_DATA = True
 
@@ -130,11 +130,23 @@ GAME_CONTROL_KEYS = [
     pygame.K_LEFT,
     pygame.K_DOWN,
     pygame.K_RIGHT,
-    pygame.K_q,
-    pygame.K_e,
+    pygame.K_o,
+    pygame.K_p,
     pygame.K_SPACE,
     pygame.K_z
 ]
+
+GAME_CONTROL_KEYS_2 = [
+    pygame.K_w,
+    pygame.K_a,
+    pygame.K_s,
+    pygame.K_d,
+    pygame.K_q,
+    pygame.K_e,
+    pygame.K_j,
+    pygame.K_k
+]
+
 
 class Params(object):
     def __init__(self):

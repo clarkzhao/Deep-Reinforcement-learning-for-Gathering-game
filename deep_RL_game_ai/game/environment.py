@@ -72,10 +72,11 @@ class EnvironmentBase(object):
         """Convert the player cells in grid to a specified player's perspective"""
         self.view_array = self.grid.copy_cells()
         for player in self.player_list:
-            if not player.is_tagged:
-                if player is input_player and self.view_array[player.position.y, player.position.x] == CellType.PLAYER:
+            if player is input_player:
+                if not player.is_tagged:
                     self.view_array[player.position.y, player.position.x] = CellType.AGENT
-                else:
+            else:
+                if not player.is_tagged:
                     self.view_array[player.position.y, player.position.x] = CellType.OPPONENT
 
     def get_observation(self):
@@ -163,8 +164,8 @@ class EnvironmentBase(object):
                 if self.time_watch.time() - player.tagged_time \
                             >= GameSetting.TAGGED_TIME:
                     player.respawn()
-                    if self.grid[player.position] in [CellType.PLAYER]:
-                        player.position = INITIAL_POSITION_2
+                    # if self.grid[player.position] in [CellType.PLAYER]:
+                        # player.position =
                     # self.grid.place_player(player)
 
     def update_beam_area(self):
@@ -177,21 +178,21 @@ class EnvironmentBase(object):
                     self.grid.clear_beam(player)
                     self.grid.update_front_of_player(player)
 
-    def check_if_using_beam(self, player):
+    def check_if_using_beam(self):
         # Update the beam area
-        if player.using_beam:
-            self.grid.place_beam_area(player)
-            # Check if the player is hit by the beam
-            for possible_player in self.player_list:
-                if self.grid.is_in_beam_area(possible_player.position):
-                    if not possible_player.is_tagged:
-                        # print("Hit by beam!!!")
-                        possible_player.get_hit(self.time_watch.time())
-                    # if possible_player.is_tagged:
-                    #     # print("Player", possible_player.idx, "is tagged")
-                        self.grid.clear_player(possible_player)
-                        if possible_player.is_tagged:
-                            possible_player.position = possible_player.initial_position
-                            possible_player.direction = PlayerDirection.NORTH
-                            possible_player.next_position = possible_player.position
-                            possible_player.next_direction = possible_player.direction
+        for player in self.player_list:
+            if not player.is_tagged and player.using_beam:
+                self.grid.place_beam_area(player)
+        # Check if any player is hit by the beam
+        for player in self.player_list:
+            if not player.is_tagged:
+                if self.grid.is_in_beam_area(player.position):
+                    print("Hit by beam!!!")
+                    player.get_hit(self.time_watch.time())
+                    if player.is_tagged:
+                        print("Player", player.idx, "is tagged")
+                        self.grid.clear_player(player)
+                        player.position = player.initial_position
+                        player.direction = PlayerDirection.NORTH
+                        player.next_position = player.position
+                        player.next_direction = player.direction
