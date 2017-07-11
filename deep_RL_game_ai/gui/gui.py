@@ -156,7 +156,7 @@ class GUIBase(object):
                         print("total reward: {}".format(agent.total_reward))
 
             if human_made_move:
-                img = self.env.player_list[1].convert_observation_to_rgb()
+                img = self.env.player_list[0].convert_observation_to_rgb()
                 self.show(img)
 
             # Draw all cells

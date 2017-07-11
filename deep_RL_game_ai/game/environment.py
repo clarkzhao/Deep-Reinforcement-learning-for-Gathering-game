@@ -190,6 +190,7 @@ class EnvironmentBase(object):
                     print("Hit by beam!!!")
                     player.get_hit(self.time_watch.time())
                     if player.is_tagged:
+                        # player.reward = 0
                         print("Player", player.idx, "is tagged")
                         self.grid.clear_player(player)
                         player.position = player.initial_position

@@ -88,10 +88,10 @@ class EnvironmentGathering(EnvironmentBase):
         self.respawn_apples()
         self.respawn_player()
         for player in self.player_list:
+            player.reward = 0
             if not player.is_tagged:
                 self.check_next_position(player)
                 self.update_grid(player)
-
         self.check_if_using_beam()
         self.get_observation()
         # self.update_beam_area()
