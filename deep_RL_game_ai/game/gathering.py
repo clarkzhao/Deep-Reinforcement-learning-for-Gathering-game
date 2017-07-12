@@ -16,7 +16,6 @@ class EnvironmentGathering(EnvironmentBase):
         for point in self.grid.find_player():
             self.player_list.append(Player(point))
             self.player_list[-1].initial_position = point
-            print(point)
 
         idx = 1
         for player in self.player_list:

@@ -105,8 +105,8 @@ class GameSetting(object):
 class DQNSetting(object):
     EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
-    EPS_DECAY_LEN = 500000  # number of steps for the epsilon to decay
-    EPS_EVAL = 0.05  # epsilon for evaluation
+    EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
+    EPS_EVAL = 0.  # epsilon for evaluation
     LR = 0.00025  # learning rate
     GAMMA = 0.99  # discounted factor
     MEMORY_SIZE = int(1e5)  # size of replay buffer
@@ -120,10 +120,11 @@ class DQNSetting(object):
     EVAL_FRE = 4  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
-    LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
+    LEARNING_START_IN_EPISODE = 500  # how many steps does the learning start in the first episode
     VISUAL_GUI = False  # whether or not to render the game
     CLIP_GRAD = 40.
     VISUAL_DATA = True
+    SAVE_FRE = 100
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,
@@ -155,3 +156,5 @@ class Params(object):
         self.log_name = self.root_dir + "/logs/" + self.timestamp + ".log"
         self.logger = loggerConfig(self.log_name)
         self.logger.warning("<===================================>")
+        self.model_name = self.root_dir + "/output/saved_models/" + self.timestamp
+        self.result_name = self.root_dir + "/output/results/" + self.timestamp

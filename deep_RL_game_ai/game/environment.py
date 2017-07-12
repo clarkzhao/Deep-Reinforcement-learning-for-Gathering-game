@@ -187,11 +187,11 @@ class EnvironmentBase(object):
         for player in self.player_list:
             if not player.is_tagged:
                 if self.grid.is_in_beam_area(player.position):
-                    print("Hit by beam!!!")
+                    # print("Hit by beam!!!")
                     player.get_hit(self.time_watch.time())
                     if player.is_tagged:
                         # player.reward = 0
-                        print("Player", player.idx, "is tagged")
+                        # print("Player", player.idx, "is tagged")
                         self.grid.clear_player(player)
                         player.position = player.initial_position
                         player.direction = PlayerDirection.NORTH

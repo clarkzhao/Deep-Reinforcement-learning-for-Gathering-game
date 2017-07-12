@@ -56,11 +56,15 @@ class DQNAgent(Agent):
         self.training = True
         self.target_update_fre = DQNSetting.TARGET_UPDATE_FRE
 
+        # best model
+        # self.best_model = DQN(n_input_features, self.n_actions).type(self.dtype)
+        self.best_reward = None
         # log agent information
         self.v_avg_log = []
         self.tderr_avg_log = []
         self.reward_log = []
         self.action_log = []
+
 
 
     def get_Q_update(self, state, action, reward, next_state, term):
