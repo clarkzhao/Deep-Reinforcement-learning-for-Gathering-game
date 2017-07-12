@@ -168,7 +168,7 @@ class AgentTrainer(object):
                     result["action_pre"] = agent.action_log
                     result["v_avg"] = agent.v_avg_log
                     result["td_err"] = agent.tderr_avg_log
-                    pickle.dump(result, open(Params().result_name + "_id-" + str(agent.player_idx) +
+                    pickle.dump(result, open(SAVE_SETTING.RESULT_NAME + "_id-" + str(agent.player_idx) +
                                              "_episode-" + str(self.episode) + ".p", "wb"))
                     del result
                 self.logger.warning("Saving all results successfully @ EPISODE: {}".format(self.episode))
@@ -264,7 +264,7 @@ class AgentTrainer(object):
                     self.logger.warning("Saved  Model for agent ID: {} @ Episode: {}".format(agent.player_idx,
                                                                                              self.episode) +
                                         " | Best Reward: " + str(agent.best_reward))
-                    torch.save(agent.q_network.state_dict(), Params().model_name + "_id-" + str(agent.player_idx) +
+                    torch.save(agent.q_network.state_dict(), SAVE_SETTING.MODEL_NAME + "_id-" + str(agent.player_idx) +
                                "_episode-" + str(self.episode) + ".pth")
 
     def reset_stats(self):

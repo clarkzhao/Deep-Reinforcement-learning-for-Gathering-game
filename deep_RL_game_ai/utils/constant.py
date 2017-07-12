@@ -149,6 +149,13 @@ GAME_CONTROL_KEYS_2 = [
 ]
 
 
+class SAVE_SETTING(object):
+    ROOT_DIR = os.getcwd()
+    TS = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
+    MODEL_NAME = ROOT_DIR + "/output/saved_models/" + TS
+    RESULT_NAME = ROOT_DIR + "/output/results/" + TS
+
+
 class Params(object):
     def __init__(self):
         self.root_dir = os.getcwd()
@@ -156,5 +163,4 @@ class Params(object):
         self.log_name = self.root_dir + "/logs/" + self.timestamp + ".log"
         self.logger = loggerConfig(self.log_name)
         self.logger.warning("<===================================>")
-        self.model_name = self.root_dir + "/output/saved_models/" + self.timestamp
-        self.result_name = self.root_dir + "/output/results/" + self.timestamp
+
