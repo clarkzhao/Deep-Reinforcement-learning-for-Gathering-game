@@ -154,7 +154,7 @@ class DRUQNAgent(Agent):
         else:
             p = self.eps / float(self.n_actions)
 
-        self.eff_lr = 1 - (1 - self.alpha) ** p
+        self.eff_lr = 1 - (1 - self.alpha) ** (1/p)
         return action
 
     def act(self, observation):
@@ -183,7 +183,7 @@ class DRUQNAgent(Agent):
                 p = 1.0 - (float(self.n_actions) - 1.0) / float(self.n_actions) * self.eps
             else:
                 p = self.eps / float(self.n_actions)
-            self.eff_lr = 1 - (1 - self.alpha) ** p
+            self.eff_lr = 1 - (1 - self.alpha) ** (1/p)
         # Book keeping
         self.recent_action = action
 

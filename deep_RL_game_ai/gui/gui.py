@@ -145,12 +145,15 @@ class GUIBase(object):
                         observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
                         agent.action = agent.act(observation)
 
-            for agent in self.agent_list:
-                self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+            # for agent in self.agent_list:
+            agent = self.agent_list[0]
+            self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
 
             # Update the environment
             self.env.move()
-
+            agent = self.agent_list[1]
+            self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+            self.env.move()
             for agent in self.agent_list:
                 if agent.is_human:
                     reward = self.env.player_list[agent.player_idx].reward

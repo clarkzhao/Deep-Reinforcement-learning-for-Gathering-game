@@ -93,7 +93,6 @@ class EnvironmentGathering(EnvironmentBase):
                 self.update_grid(player)
         self.check_if_using_beam()
         self.get_observation()
-        # self.update_beam_area()
 
     def respawn_apples(self):
         """

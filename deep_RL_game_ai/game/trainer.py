@@ -59,6 +59,14 @@ class AgentTrainer(object):
             idx += 1
             if agent.is_DQN:
                 agent.optimizer = agent.optim(agent.q_network.parameters(), lr=agent.lr, alpha=0.95, eps=0.01)
+                # if agent.player_idx == 0:
+                #     if agent.load_model(os.getcwd() + "/output/saved_models/" +
+                #                      "2017-07-13_12-01-40_id-1_episode-924_best.pth"):
+                #         print("loading agent: {} successfully".format(agent.player_idx))
+                # else:
+                #     if agent.load_model(os.getcwd() + "/output/saved_models/" +
+                #                      "2017-07-13_12-01-40_id-1_episode-924_best.pth"):
+                #         print("loading agent: {} successfully".format(agent.player_idx))
 
     def new_episode(self):
         self.timestep_watch.reset()
@@ -72,6 +80,38 @@ class AgentTrainer(object):
                 self.logger.warning("agent: {} in control of player {}".format(agent.player_idx,
                                     self.env.player_list[agent.player_idx].idx))
 
+    def move(self, agent, running, training):
+        agent.step = self.step
+        observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+        agent.action = agent.act(observation)
+        agent.action_stats[agent.action] += 1
+        # Log position stats
+        # agent.position_stats[self.env.player_list[agent.player_idx].position.y,
+        #                     self.env.player_list[agent.player_idx].position.x] += 1
+        self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
+        self.env.move()
+        cur_reward = self.env.player_list[agent.player_idx].reward
+        agent.total_reward += cur_reward
+        if agent.is_DQN:
+            term = not running
+            agent.learn(cur_reward, term)
+            # Log of DQN training information
+            if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
+                if training:
+                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
+                    if not agent.is_DRUQN:
+                        self.logger.warning("Training stats @ step {}|    epsilon:          {}".format(agent.step,
+                                                                                                       agent.eps) +
+                                            "    total_reward:     {}".format(agent.total_reward))
+                    else:
+                        self.logger.warning("Training stats @ step {}|    epsilon:   {}".format(agent.step,
+                                                                                                agent.eps) +
+                                            "    eff_lr:   {}".format(agent.eff_lr) +
+                                            "    total_reward:  {}".format(agent.total_reward))
+                else:
+                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
+                    self.logger.warning("Evaluating stats|  total_reward:     {}".format(agent.total_reward))
+
     def train_episode(self):
         """ Train the DQN player for a single episode. """
         self.fps_clock = pygame.time.Clock()
@@ -79,70 +119,31 @@ class AgentTrainer(object):
         # Initialize the environment.
         self.new_episode()
 
-        # A flag for whether the agent is controlled by human
-        # timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
-        timestep_delay = GameSetting.AI_TIMESTEP_DELAY
-
         # Main game loop.
         running = True
         while running:
-            for agent in self.agent_list:
-                agent.action = PlayerAction.STAND_STILL
-            # Update game state.
-            timestep_timed_out = self.timestep_watch.time() >= timestep_delay
+            self.step_in_an_episode += 1  # From 1 to self.n_steps
+            self.step += 1
+            if self.step_in_an_episode == self.n_steps:
+                running = False
+            # Log of overall information
+            if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
+                self.logger.warning("Training Report   @ EPISODE: " + str(self.episode) +
+                                    " | STEP: " + str(self.step_in_an_episode) +
+                                    " | TOTAL STEP: " + str(self.step) +
+                                    " | Elapsed Time: " + str(time.time() - self.start_time))
 
-            # Update the environment for all players' action
-            if timestep_timed_out:
-                self.timestep_watch.reset()
-                self.step_in_an_episode += 1  # From 1 to self.n_steps
-                self.step += 1
-                if self.step_in_an_episode == self.n_steps:
-                    running = False
-                # Log of overall information
-                if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
-                    self.logger.warning("Training Report   @ EPISODE: " + str(self.episode) +
-                                        " | STEP: " + str(self.step_in_an_episode) +
-                                        " | TOTAL STEP: " + str(self.step) +
-                                        " | Elapsed Time: " + str(time.time() - self.start_time))
-                for agent in self.agent_list:
-                    agent.step = self.step
-                    observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
-                    # Take action from the observation
-                    agent.action = agent.act(observation)
-                    # Log action stats
-                    agent.action_stats[agent.action] += 1
-                    # Log position stats
-                    # agent.position_stats[self.env.player_list[agent.player_idx].position.y,
-                    #                     self.env.player_list[agent.player_idx].position.x] += 1
-                # Move the environment
-            for agent in self.agent_list:
-                self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-            self.env.move()
+            agent = self.agent_list[0]
+            self.move(agent, running, True)
+            if self.visual:
+                self.draw_all_cells()
+                pygame.display.update()
 
-            # Get the reward from the environment
-
-            if timestep_timed_out:
-                for agent in self.agent_list:
-                    cur_reward = self.env.player_list[agent.player_idx].reward
-                    agent.total_reward += cur_reward
-                    if agent.is_DQN:
-                        term = not running
-                        agent.learn(cur_reward, term)
-                        # Log of DQN training information
-                        if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
-                            self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
-                            if not agent.is_DRUQN:
-                                self.logger.warning("Training stats @ step {}|    epsilon:          {}".format(agent.step,
-                                                                                                               agent.eps) +
-                                                    "    total_reward:     {}".format(agent.total_reward))
-                            else:
-                                self.logger.warning("Training stats @ step {}|    epsilon:   {}".format(agent.step,
-                                                                                                           agent.eps) +
-                                                    "    eff_lr:   {}".format(agent.eff_lr) +
-                                                    "    total_reward:  {}".format(agent.total_reward))
-                if self.visual:
-                    self.draw_all_cells()
-                    pygame.display.update()
+            agent = self.agent_list[1]
+            self.move(agent, running, True)
+            if self.visual:
+                self.draw_all_cells()
+                pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
 
     def fit_model(self):
@@ -178,14 +179,8 @@ class AgentTrainer(object):
                                              "_episode-" + str(self.episode) + ".p", "wb"))
                     del result
                     torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
-                                "_episode-" + str(self.episode) + "_final" + ".pth")
+                               "_episode-" + str(self.episode) + "_final" + ".pth")
                 self.logger.warning("Saving all results successfully @ EPISODE: {}".format(self.episode))
-
-        # for agent in self.agent_list:
-        #     torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
-        #                "_episode-" + "_final" + ".pth")
-        #     self.logger.warning("Saved  Model for agent ID: {} in the final".format(agent.player_idx) +
-        #                         " | Best Reward: " + str(agent.best_reward))
 
 
     def evaluate_episode(self):
@@ -197,60 +192,30 @@ class AgentTrainer(object):
         # Initialize the environment.
         self.new_episode()
 
-        # A flag for whether the agent is controlled by human
-        # timestep_delay = GameSetting.HUMAN_TIMESTEP_DELAY if is_human else GameSetting.AI_TIMESTEP_DELAY
-        timestep_delay = GameSetting.AI_TIMESTEP_DELAY
-
         # Main game loop.
         running = True
         while running:
-            for agent in self.agent_list:
-                agent.action = PlayerAction.STAND_STILL
-            # Update game state.
-            timestep_timed_out = self.timestep_watch.time() >= timestep_delay
+            self.step_in_an_episode += 1  # From 1 to self.n_steps
+            if self.step_in_an_episode == self.eval_steps:
+                running = False
 
-            # Update the environment for all players' action
-            if timestep_timed_out:
-                self.timestep_watch.reset()
-                self.step_in_an_episode += 1  # From 1 to self.n_steps
-                if self.step_in_an_episode == self.eval_steps:
-                    running = False
-                # Log of overall information
-                if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
-                    self.logger.warning("Evaluating Report   @ EPISODE: " + str(self.episode) +
-                                        " | STEP: " + str(self.step_in_an_episode) +
-                                        " | Elapsed Time: " + str(time.time() - self.start_time))
-                for agent in self.agent_list:
-                    observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
-                    # Take action from the observation
-                    agent.action = agent.act(observation)
-                    # Log action stats
-                    agent.action_stats[agent.action] += 1
-                    # Log position stats
-                    # agent.position_stats[self.env.player_list[agent.player_idx].position.y,
-                    #                     self.env.player_list[agent.player_idx].position.x] += 1
+            # Log of overall information
+            if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
+                self.logger.warning("Evaluating Report   @ EPISODE: " + str(self.episode) +
+                                    " | STEP: " + str(self.step_in_an_episode) +
+                                    " | Elapsed Time: " + str(time.time() - self.start_time))
 
-                # Move the environment
-            for agent in self.agent_list:
-                self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-            self.env.move()
+            agent = self.agent_list[0]
+            self.move(agent, running, False)
+            if self.visual:
+                self.draw_all_cells()
+                pygame.display.update()
 
-            # Get the reward from the environment
-
-            if timestep_timed_out:
-                for agent in self.agent_list:
-                    cur_reward = self.env.player_list[agent.player_idx].reward
-                    agent.total_reward += cur_reward
-                    if agent.is_DQN:
-                        term = not running
-                        agent.learn(cur_reward, term)
-                        # Log of DQN training information
-                        if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
-                            self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
-                            self.logger.warning("Evaluating stats|  total_reward:     {}".format(agent.total_reward))
-                if self.visual:
-                    self.draw_all_cells()
-                    pygame.display.update()
+            agent = self.agent_list[1]
+            self.move(agent, running, False)
+            if self.visual:
+                self.draw_all_cells()
+                pygame.display.update()
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
 
         for agent in self.agent_list:
@@ -270,16 +235,14 @@ class AgentTrainer(object):
                 self.logger.warning("Evaluation @ EPISODE: {}: Action distribution:".format(self.episode) +
                                     agent.display_action_stats())
 
-                if agent.best_reward is None:
-                    agent.best_reward = agent.total_reward
-
-                if agent.total_reward >= agent.best_reward:
+                if agent.total_reward >= agent.best_reward and agent.total_reward > 0:
                     agent.best_reward = agent.total_reward
                     torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
-                               "_episode-" + str(self.episode) + ".pth")
+                               "_episode-" + str(self.episode) + "_best" + ".pth")
                     self.logger.warning("Saved  Model for agent ID: {} @ Episode: {}".format(agent.player_idx,
                                                                                              self.episode) +
                                         " | Best Reward: " + str(agent.best_reward))
+
     def reset_stats(self):
         for agent in self.agent_list:
             if agent.is_DQN:
@@ -288,8 +251,7 @@ class AgentTrainer(object):
                 agent.tderr_avg_log = []
                 agent.reward_log = []
                 agent.action_log = []
-                agent.best_reward = None
-
+                agent.best_reward = 0
 
     def draw_a_cell(self, x, y):
         """ Draw the cell specified by the field coordinates. """
@@ -315,4 +277,3 @@ class AgentTrainer(object):
         for agent in self.agent_list:
             if agent.is_DQN:
                 agent.training = train
-

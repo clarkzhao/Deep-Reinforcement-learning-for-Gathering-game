@@ -92,7 +92,7 @@ ALL_PREY_ACTIONS = [
 
 class GameSetting(object):
     FPS_LIMIT = 60
-    AI_TIMESTEP_DELAY = 5
+    AI_TIMESTEP_DELAY = 1
     HUMAN_TIMESTEP_DELAY = 200
     CELL_SIZE = 20
     APPLE_RESPAWN_TIME = 1000  # milliseconds
@@ -106,8 +106,8 @@ class DQNSetting(object):
     EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
     EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
-    EPS_EVAL = 0.  # epsilon for evaluation
-    LR = 0.00025  # learning rate
+    EPS_EVAL = 0.05  # epsilon for evaluation
+    LR = 0.0005  # learning rate
     GAMMA = 0.99  # discounted factor
     MEMORY_SIZE = int(1e5)  # size of replay buffer
     N_COLS = 3  # number of color channels in the input
@@ -117,10 +117,10 @@ class DQNSetting(object):
     TARGET_UPDATE_FRE = 1000  # how many steps to update the target Q networks
     TOTAL_STEPS_PER_EPISODE = 1000  # how many steps in an episode
     TOTAL_NUM_EPISODE = 2000  # how many number of episode to train on
-    EVAL_FRE = 4  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
+    EVAL_FRE = 5  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
-    LEARNING_START_IN_EPISODE = 500  # how many steps does the learning start in the first episode
+    LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
     VISUAL_GUI = False  # whether or not to render the game
     CLIP_GRAD = 40.
     VISUAL_DATA = True

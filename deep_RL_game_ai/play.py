@@ -20,6 +20,6 @@ if __name__ == '__main__':
 
     # Game = GatheringGUI()
     # Game.set_up()
-    # agent_list = [DQNAgent(), HumanAgent()]
+    # agent_list = [HumanAgent(), HumanAgent()]
     # Game.load_agent(agent_list)
     # Game.run_episode()
