@@ -196,6 +196,8 @@ class DQNAgent(Agent):
             delta.backward()
             for param in self.q_network.parameters():
                 param.grad.data.clamp_(-self.clip_grad, self.clip_grad)
+            # for param in self.q_network.parameters():
+            #     param.grad.data.clamp_(-1, 40)
             # Perform the update
             self.optimizer.step()
             # Update the target network

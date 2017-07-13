@@ -39,6 +39,7 @@ class PlayerDirection(object):
 INITIAL_POSITION_1 = Point(1, 6)
 INITIAL_POSITION_2 = Point(31, 6)
 
+
 class PlayerAction(object):
     STEP_FORWARD = 0
     STEP_BACKWARD = 1
@@ -50,7 +51,7 @@ class PlayerAction(object):
     STAND_STILL = 7
 
     @staticmethod
-    def toString(a):
+    def to_string(a):
         return {
             0: 'STEP FORWARD',
             1: 'STEP BACKWARD',
@@ -102,12 +103,12 @@ class GameSetting(object):
     GUI = True
     AGENT_VIEW_RANGE = [16, 21]
 
+
 class DQNSetting(object):
     EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
     EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
-    EPS_EVAL = 0.05  # epsilon for evaluation
-    LR = 0.0005  # learning rate
+    EPS_EVAL = 0.  # epsilon for evaluation
     GAMMA = 0.99  # discounted factor
     MEMORY_SIZE = int(1e5)  # size of replay buffer
     N_COLS = 3  # number of color channels in the input
@@ -125,7 +126,14 @@ class DQNSetting(object):
     CLIP_GRAD = 40.
     VISUAL_DATA = True
     SAVE_FRE = 100
+
+    # Change for DQN or DRUQN
+    LR = 0.0005  # learning rate
     ALPHA = 0.01
+
+    # File name for the saved DQN model
+    PRETRAINED_MODEL_1 = ""
+    PRETRAINED_MODEL_2 = ""
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

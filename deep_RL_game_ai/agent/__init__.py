@@ -22,7 +22,6 @@ class Agent(object):
 
     def begin_episode(self):
         """Start a new episode"""
-        # raise NotImplementedError
         self.action = PlayerAction.STAND_STILL
         self.total_reward = 0
         self.action_stats = np.zeros(self.n_actions)
@@ -40,7 +39,7 @@ class Agent(object):
     def display_action_stats(self):
         info = "\n"
         for action, value in enumerate(self.action_stats):
-            info += PlayerAction.toString(action) + ': ' + str(value) + '\n'
+            info += PlayerAction.to_string(action) + ': ' + str(value) + '\n'
         return info
 
     def display_position_stats(self):
