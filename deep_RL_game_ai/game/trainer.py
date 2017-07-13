@@ -131,9 +131,15 @@ class AgentTrainer(object):
                         # Log of DQN training information
                         if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
                             self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
-                            self.logger.warning("Training stats @ step {}|    epsilon:          {}".format(agent.step,
+                            if not agent.is_DRUQN:
+                                self.logger.warning("Training stats @ step {}|    epsilon:          {}".format(agent.step,
+                                                                                                               agent.eps) +
+                                                    "    total_reward:     {}".format(agent.total_reward))
+                            else:
+                                self.logger.warning("Training stats @ step {}|    epsilon:   {}".format(agent.step,
                                                                                                            agent.eps) +
-                                                "    total_reward:     {}".format(agent.total_reward))
+                                                    "    eff_lr:   {}".format(agent.eff_lr) +
+                                                    "    total_reward:  {}".format(agent.total_reward))
                 if self.visual:
                     self.draw_all_cells()
                     pygame.display.update()
@@ -168,10 +174,18 @@ class AgentTrainer(object):
                     result["action_pre"] = agent.action_log
                     result["v_avg"] = agent.v_avg_log
                     result["td_err"] = agent.tderr_avg_log
-                    pickle.dump(result, open(SAVE_SETTING.RESULT_NAME + "_id-" + str(agent.player_idx) +
+                    pickle.dump(result, open(SaveSetting().RESULT_NAME + "_id-" + str(agent.player_idx) +
                                              "_episode-" + str(self.episode) + ".p", "wb"))
                     del result
+                    torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
+                                "_episode-" + str(self.episode) + "_final" + ".pth")
                 self.logger.warning("Saving all results successfully @ EPISODE: {}".format(self.episode))
+
+        # for agent in self.agent_list:
+        #     torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
+        #                "_episode-" + "_final" + ".pth")
+        #     self.logger.warning("Saved  Model for agent ID: {} in the final".format(agent.player_idx) +
+        #                         " | Best Reward: " + str(agent.best_reward))
 
 
     def evaluate_episode(self):
@@ -259,14 +273,13 @@ class AgentTrainer(object):
                 if agent.best_reward is None:
                     agent.best_reward = agent.total_reward
 
-                if agent.total_reward > agent.best_reward:
+                if agent.total_reward >= agent.best_reward:
                     agent.best_reward = agent.total_reward
+                    torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
+                               "_episode-" + str(self.episode) + ".pth")
                     self.logger.warning("Saved  Model for agent ID: {} @ Episode: {}".format(agent.player_idx,
                                                                                              self.episode) +
                                         " | Best Reward: " + str(agent.best_reward))
-                    torch.save(agent.q_network.state_dict(), SAVE_SETTING.MODEL_NAME + "_id-" + str(agent.player_idx) +
-                               "_episode-" + str(self.episode) + ".pth")
-
     def reset_stats(self):
         for agent in self.agent_list:
             if agent.is_DQN:

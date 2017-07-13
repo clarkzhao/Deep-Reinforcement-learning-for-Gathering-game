@@ -9,9 +9,10 @@ class Agent(object):
         self.is_prey = False
         self.is_human = False
         self.is_DQN = False
+        self.is_DRUQN = False
         self.step = None  # total number of steps in all training episode
         self.action = None  # current action
-        self.total_reward = None  # total reward in an episode
+        self.total_reward = None  # total reward accumulated in a single episode
         self.n_actions = len(ALL_PLAYER_ACTIONS)  # total number of actions
 
         # log agent information

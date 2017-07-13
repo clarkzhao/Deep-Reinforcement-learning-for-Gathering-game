@@ -95,8 +95,8 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 5
     HUMAN_TIMESTEP_DELAY = 200
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 10000  # milliseconds
-    TAGGED_TIME = 10000  # milliseconds
+    APPLE_RESPAWN_TIME = 1000  # milliseconds
+    TAGGED_TIME = 1000  # milliseconds
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
@@ -125,6 +125,7 @@ class DQNSetting(object):
     CLIP_GRAD = 40.
     VISUAL_DATA = True
     SAVE_FRE = 100
+    ALPHA = 0.01
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,
@@ -149,11 +150,12 @@ GAME_CONTROL_KEYS_2 = [
 ]
 
 
-class SAVE_SETTING(object):
-    ROOT_DIR = os.getcwd()
-    TS = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
-    MODEL_NAME = ROOT_DIR + "/output/saved_models/" + TS
-    RESULT_NAME = ROOT_DIR + "/output/results/" + TS
+class SaveSetting(object):
+    def __init__(self):
+        self.root_dir = os.getcwd()
+        self.timestamp = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
+        self.MODEL_NAME = self.root_dir + "/output/saved_models/" + self.timestamp
+        self.RESULT_NAME = self.root_dir + "/output/results/" + self.timestamp
 
 
 class Params(object):
@@ -163,4 +165,3 @@ class Params(object):
         self.log_name = self.root_dir + "/logs/" + self.timestamp + ".log"
         self.logger = loggerConfig(self.log_name)
         self.logger.warning("<===================================>")
-

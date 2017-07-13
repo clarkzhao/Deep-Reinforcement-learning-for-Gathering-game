@@ -27,6 +27,11 @@ class GUIBase(object):
         for agent in self.agent_list:
             agent.player_idx = idx
             idx += 1
+            if agent.is_DQN:
+                agent.step = 0
+                agent.training = False
+                if agent.load_model(os.getcwd()+"/output/saved_models/"+"2017-07-12_13-03-45_id-1_episode-448.pth"):
+                    print("Loading DQN successfully")
 
     def draw_one_cell(self, x, y):
         """ Draw the cell specified by the field coordinates. """
@@ -136,7 +141,9 @@ class GUIBase(object):
                 self.timestep_watch.reset()
                 for agent in self.agent_list:
                     if not agent.is_human:
-                        agent.action = agent.act(self.env.player_list[agent.player_idx].observation)
+                        agent.step += 1
+                        observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
+                        agent.action = agent.act(observation)
 
             for agent in self.agent_list:
                 self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
@@ -155,9 +162,9 @@ class GUIBase(object):
                         print(agent.player_idx, reward)
                         print("total reward: {}".format(agent.total_reward))
 
-            if human_made_move:
-                img = self.env.player_list[0].convert_observation_to_rgb()
-                self.show(img)
+            # if human_made_move:
+            #     img = self.env.player_list[0].convert_observation_to_rgb()
+            #     self.show(img)
 
             # Draw all cells
             if GameSetting.GUI:
