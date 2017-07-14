@@ -108,7 +108,10 @@ class DQNSetting(object):
     EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
     EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
+
     EPS_EVAL = 0.  # epsilon for evaluation
+    EPS_TEST = 0.
+
     GAMMA = 0.99  # discounted factor
     MEMORY_SIZE = int(1e5)  # size of replay buffer
     N_COLS = 3  # number of color channels in the input
@@ -121,19 +124,20 @@ class DQNSetting(object):
     EVAL_FRE = 5  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
-    LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
-    VISUAL_GUI = False  # whether or not to render the game
+    LEARNING_START_IN_EPISODE = 0  # how many steps does the learning start in the first episode
+    VISUAL_GUI = True  # whether or not to render the game
     CLIP_GRAD = 40.
     VISUAL_DATA = True
     SAVE_FRE = 100
+    USE_CUDA = False
 
     # Change for DQN or DRUQN
     LR = 0.0005  # learning rate
     ALPHA = 0.01
 
     # File name for the saved DQN model
-    PRETRAINED_MODEL_1 = ""
-    PRETRAINED_MODEL_2 = ""
+    PRETRAINED_MODEL_1 = os.getcwd() + "/output/saved_models/" + "2017-07-14_03-53-03_id-0_episode-1565_best.pth"
+    PRETRAINED_MODEL_2 = os.getcwd() + "/output/saved_models/" + r"2017-07-14_03-44-41_id-1_episode-1540_best.pth"
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

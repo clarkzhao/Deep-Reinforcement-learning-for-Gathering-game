@@ -16,8 +16,8 @@ if __name__ == '__main__':
     # agent_list = [DQNAgent(), DQNAgent()]
     agent_list = [DRUQNAgent(), DRUQNAgent()]
     Game.load_agent(agent_list)
-    Game.fit_model()
-
+    # Game.fit_model()
+    Game.test_model()
     # Game = GatheringGUI()
     # Game.set_up()
     # agent_list = [HumanAgent(), HumanAgent()]

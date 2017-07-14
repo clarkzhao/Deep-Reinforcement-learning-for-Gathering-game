@@ -40,7 +40,8 @@ class DQNAgent(Agent):
                            GameSetting.AGENT_VIEW_RANGE[0],
                            GameSetting.AGENT_VIEW_RANGE[1]]
 
-        self.dtype = torch.FloatTensor
+        self.use_cuda = torch.cuda.is_available()
+        self.dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
         self.last_idx = None
 
         # q-networks
@@ -81,8 +82,11 @@ class DQNAgent(Agent):
         cur_s = Variable(torch.from_numpy(state).type(self.dtype) / 255.0)  # normalize the state
         next_s = Variable(torch.from_numpy(next_state).type(self.dtype) / 255.0)
         action = Variable(torch.from_numpy(action).long())
-        reward = Variable(torch.from_numpy(reward))
+        reward = Variable(torch.from_numpy(reward).type(self.dtype))
         not_term = Variable(torch.from_numpy(1 - term)).type(self.dtype)
+
+        if self.use_cuda:
+            action = action.cuda()
 
         # Compute max_a Q(s2, a)
         # Detach this variable from the current graph since we don't want gradients to propagate

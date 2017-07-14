@@ -263,6 +263,7 @@ class AgentTrainer(object):
         self.episode = 0
         while self.episode < self.n_episodes:
             self.episode += 1
+            self.step += 1
             self.fps_clock = pygame.time.Clock()
 
             # Initialize the environment.
