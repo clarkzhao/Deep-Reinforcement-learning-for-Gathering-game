@@ -11,6 +11,7 @@ if __name__ == '__main__':
     # Game = CliGame()
     Game = AgentTrainer()
     Game.set_up()
+
     # If you want to try random agent
     # agent_list = [HumanAgent(), RandomAgent(), PreyAgent()]
     # agent_list = [DQNAgent(), DQNAgent()]
@@ -18,6 +19,9 @@ if __name__ == '__main__':
     Game.load_agent(agent_list)
     # Game.fit_model()
     Game.test_model()
+
+
+
     # Game = GatheringGUI()
     # Game.set_up()
     # agent_list = [HumanAgent(), HumanAgent()]

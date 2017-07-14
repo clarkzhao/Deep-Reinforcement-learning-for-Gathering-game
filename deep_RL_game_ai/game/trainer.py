@@ -92,6 +92,7 @@ class AgentTrainer(object):
         """
         assert verbose in [1, 2, 3]
         agent.step = self.step
+        agent.step_in_an_episode = self.step_in_an_episode
         observation = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
         agent.action = agent.act(observation)
         agent.action_stats[agent.action] += 1
@@ -99,7 +100,7 @@ class AgentTrainer(object):
         # agent.position_stats[self.env.player_list[agent.player_idx].position.y,
         #                     self.env.player_list[agent.player_idx].position.x] += 1
         self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-        self.env.move()
+        self.env.move(agent.step_in_an_episode)
         cur_reward = self.env.player_list[agent.player_idx].reward
         agent.total_reward += cur_reward
         if agent.is_DQN:
@@ -261,6 +262,9 @@ class AgentTrainer(object):
         self.set_all_agents_to_train(False)
         self.reset_stats()
         self.episode = 0
+        for agent in self.agent_list:
+            agent.learning_start = 0
+
         while self.episode < self.n_episodes:
             self.episode += 1
             self.step += 1

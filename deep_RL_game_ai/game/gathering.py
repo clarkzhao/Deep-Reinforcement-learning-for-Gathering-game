@@ -74,37 +74,37 @@ class EnvironmentGathering(EnvironmentBase):
         # Place the player in the new position
         self.grid.place_player(player)
 
-        self.collect_apple(player)
 
 
-    def move(self):
+    def move(self, step):
         """
         In this method, the player is moved to the next position it should be 
         Any reward and beam detection is happened here
         """
         self.grid.clear_beam_area()
         self.update_front_of_players()
-        self.respawn_apples()
-        self.respawn_player()
+        self.respawn_apples(step)
+        self.respawn_player(step)
         for player in self.player_list:
             player.reward = 0
             if not player.is_tagged:
                 self.check_next_position(player)
                 self.update_grid(player)
-        self.check_if_using_beam()
+                self.collect_apple(player, step)
+        self.check_if_using_beam(step)
         self.get_observation()
 
-    def respawn_apples(self):
+    def respawn_apples(self, step):
         """
         the valid apple will be respawn in this method
         """
         for apple in self.apple_list:
             if apple.is_collected:
-                if self.time_watch.time() - apple.collected_time \
+                if step - apple.collected_time \
                             >= GameSetting.APPLE_RESPAWN_TIME:
                     apple.respawn()
 
-    def collect_apple(self, player):
+    def collect_apple(self, player, step):
         """
         check if the player is about to collect any apple
         """
@@ -112,7 +112,7 @@ class EnvironmentGathering(EnvironmentBase):
         eaten_any_apple = False
         for apple in self.apple_list:
             if not apple.is_collected and apple.position == player.position and not player.is_tagged:
-                apple.get_collected(self.time_watch.time())
+                apple.get_collected(step)
                 player.apple_eaten += 1
                 player.reward = 1
                 eaten_any_apple = True

@@ -39,7 +39,7 @@ class EnvironmentBase(object):
         # self.current_action = action
         if not player.is_tagged:
             if action == PlayerAction.USE_BEAM:
-                player.use_beam(self.time_watch.time())
+                player.use_beam()
 
             elif action == PlayerAction.STEP_FORWARD:
                 player.step_forward()
@@ -65,7 +65,7 @@ class EnvironmentBase(object):
     def update_grid(self, player):
         pass
 
-    def move(self):
+    def move(self, step):
         pass
 
     def convert_view(self, input_player: Player):
@@ -157,28 +157,18 @@ class EnvironmentBase(object):
         elif player.next_position.y >= self.grid.width:
             player.next_position.y = self.grid.height - 1
 
-    def respawn_player(self):
+    def respawn_player(self, step):
         # check if any player can be respawn?
         for player in self.player_list:
             if player.is_tagged:
-                if self.time_watch.time() - player.tagged_time \
+                if step - player.tagged_time \
                             >= GameSetting.TAGGED_TIME:
                     player.respawn()
                     # if self.grid[player.position] in [CellType.PLAYER]:
                         # player.position =
                     # self.grid.place_player(player)
 
-    def update_beam_area(self):
-        for player in self.player_list:
-            if player.using_beam:
-                if self.time_watch.time() - player.beam_time \
-                        >= GameSetting.BEAM_DURATION:
-                    player.using_beam = False
-                    player.beam_time = 0.
-                    self.grid.clear_beam(player)
-                    self.grid.update_front_of_player(player)
-
-    def check_if_using_beam(self):
+    def check_if_using_beam(self, step):
         # Update the beam area
         for player in self.player_list:
             if not player.is_tagged and player.using_beam:
@@ -188,7 +178,7 @@ class EnvironmentBase(object):
             if not player.is_tagged:
                 if self.grid.is_in_beam_area(player.position):
                     # print("Hit by beam!!!")
-                    player.get_hit(self.time_watch.time())
+                    player.get_hit(step)
                     if player.is_tagged:
                         # player.reward = 0
                         # print("Player", player.idx, "is tagged")

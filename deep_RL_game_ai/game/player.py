@@ -16,7 +16,6 @@ class Player(object):
         self.next_position = self.position
         self.next_direction = self.direction
         self.using_beam = False
-        self.beam_time = 0.
         self.is_tagged = False
         self.num_hit_by_beam = 0
         self.tagged_time = 0.
@@ -89,9 +88,8 @@ class Player(object):
         self.position = self.next_position
         self.direction = self.next_direction
 
-    def use_beam(self, time):
+    def use_beam(self):
         self.using_beam = True
-        self.beam_time = time
 
     def is_position_moved(self):
         if self.next_position != self.position:

@@ -96,8 +96,8 @@ class GameSetting(object):
     AI_TIMESTEP_DELAY = 1
     HUMAN_TIMESTEP_DELAY = 200
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 1000  # milliseconds
-    TAGGED_TIME = 1000  # milliseconds
+    APPLE_RESPAWN_TIME = 60  # milliseconds
+    TAGGED_TIME = 60  # milliseconds
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
@@ -109,7 +109,7 @@ class DQNSetting(object):
     EPS_END = 0.1  # epsilon in the end
     EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
 
-    EPS_EVAL = 0.  # epsilon for evaluation
+    EPS_EVAL = 0.05  # epsilon for evaluation
     EPS_TEST = 0.
 
     GAMMA = 0.99  # discounted factor
@@ -124,15 +124,15 @@ class DQNSetting(object):
     EVAL_FRE = 5  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
-    LEARNING_START_IN_EPISODE = 0  # how many steps does the learning start in the first episode
+    LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
     VISUAL_GUI = True  # whether or not to render the game
-    CLIP_GRAD = 40.
+    CLIP_GRAD = 1.
     VISUAL_DATA = True
     SAVE_FRE = 100
     USE_CUDA = False
 
     # Change for DQN or DRUQN
-    LR = 0.0005  # learning rate
+    LR = 0.00025  # learning rate
     ALPHA = 0.01
 
     # File name for the saved DQN model
