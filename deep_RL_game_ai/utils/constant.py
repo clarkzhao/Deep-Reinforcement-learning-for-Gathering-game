@@ -92,12 +92,12 @@ ALL_PREY_ACTIONS = [
 
 
 class GameSetting(object):
-    FPS_LIMIT = 60
+    FPS_LIMIT = 1200
     AI_TIMESTEP_DELAY = 1
     HUMAN_TIMESTEP_DELAY = 200
     CELL_SIZE = 20
-    APPLE_RESPAWN_TIME = 60  # milliseconds
-    TAGGED_TIME = 60  # milliseconds
+    APPLE_RESPAWN_TIME = 60  # number of steps the agent moved
+    TAGGED_TIME = 60  # number of steps the agent moved
     player_view = [16, 21]
     BEAM_DURATION = 10
     GUI = True
@@ -105,6 +105,13 @@ class GameSetting(object):
 
 
 class DQNSetting(object):
+    GAMMA = 0.99  # discounted factor
+    MEMORY_SIZE = int(1e5)  # size of replay buffer
+    N_COLS = 3  # number of color channels in the input
+    N_HIST = 1  # length of history
+    BATCH_SIZE = 32  # how many transitions to sample each time from the memory buffer in training
+    VALID_SIZE = 500  # how many transitions to sample each time from the memory buffer in validation
+
     EPS_START = 1.0  # epsilon at the start
     EPS_END = 0.1  # epsilon in the end
     EPS_DECAY_LEN = 1000000  # number of steps for the epsilon to decay
@@ -112,20 +119,15 @@ class DQNSetting(object):
     EPS_EVAL = 0.05  # epsilon for evaluation
     EPS_TEST = 0.
 
-    GAMMA = 0.99  # discounted factor
-    MEMORY_SIZE = int(1e5)  # size of replay buffer
-    N_COLS = 3  # number of color channels in the input
-    N_HIST = 1  # length of history
-    BATCH_SIZE = 32  # how many transitions to sample each time from the memory buffer in training
-    VALID_SIZE = 500  # how many transitions to sample each time from the memory buffer in validation
     TARGET_UPDATE_FRE = 1000  # how many steps to update the target Q networks
     TOTAL_STEPS_PER_EPISODE = 1000  # how many steps in an episode
     TOTAL_NUM_EPISODE = 2000  # how many number of episode to train on
     EVAL_FRE = 5  # the evaluation frequency in number of episode, evaluate once for every 'EVAL_FRE' episodes
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
-    LEARNING_START_IN_EPISODE = 5000  # how many steps does the learning start in the first episode
-    VISUAL_GUI = True  # whether or not to render the game
+    EVAL_EPISODES = 5
+    LEARNING_START_IN_EPISODE = 500  # how many steps does the learning start in the first episode
+    VISUAL_GUI = False  # whether or not to render the game
     CLIP_GRAD = 1.
     VISUAL_DATA = True
     SAVE_FRE = 100
@@ -138,6 +140,9 @@ class DQNSetting(object):
     # File name for the saved DQN model
     PRETRAINED_MODEL_1 = os.getcwd() + "/output/saved_models/" + "2017-07-14_03-53-03_id-0_episode-1565_best.pth"
     PRETRAINED_MODEL_2 = os.getcwd() + "/output/saved_models/" + r"2017-07-14_03-44-41_id-1_episode-1540_best.pth"
+
+    #Global Seed
+    SEED = 123
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

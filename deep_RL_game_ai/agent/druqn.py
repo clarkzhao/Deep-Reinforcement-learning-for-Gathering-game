@@ -61,12 +61,13 @@ class DRUQNAgent(Agent):
 
         # best model
         # self.best_model = DQN(n_input_features, self.n_actions).type(self.dtype)
-        self.best_reward = None
+        self.best_avg_reward = None
         # log agent information
         self.v_avg_log = []
         self.tderr_avg_log = []
         self.reward_log = []
         self.action_log = []
+        self.reward_avg_log = []
 
 
         # DRUQN parameters

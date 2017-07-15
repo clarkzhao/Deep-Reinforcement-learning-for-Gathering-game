@@ -51,7 +51,6 @@ class AgentTrainer(object):
         self.step = 0
         self.episode = 0
 
-
     def load_agent(self, agent_list):
         """ Load the RL agent into the Game GUI. """
         self.agent_list = agent_list.copy()
@@ -111,20 +110,20 @@ class AgentTrainer(object):
                 if verbose == 1:
                     self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
                     if not agent.is_DRUQN:
-                        self.logger.warning("Training stats @ step {}|    epsilon:          {}".format(agent.step,
-                                                                                                       agent.eps) +
+                        self.logger.warning("       Training stats @ step {0}|    epsilon:   {1:.3f}".format(agent.step,
+                                                                                                            agent.eps) +
                                             "    total_reward:     {}".format(agent.total_reward))
                     else:
-                        self.logger.warning("Training stats @ step {}|    epsilon:   {}".format(agent.step,
+                        self.logger.warning("       Training stats @ step {0}|    epsilon:   {1:.3f}".format(agent.step,
                                                                                                 agent.eps) +
-                                            "    eff_lr:   {}".format(agent.eff_lr) +
+                                            "    eff_lr:   {0:.4f}".format(agent.eff_lr) +
                                             "    total_reward:  {}".format(agent.total_reward))
                 elif verbose == 2:
-                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
-                    self.logger.warning("Evaluating stats|  total_reward:     {}".format(agent.total_reward))
+                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx) +
+                                        "       Evaluating stats|  total_reward:     {}".format(agent.total_reward))
                 else:
-                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx))
-                    self.logger.warning("Testing stats|  total_reward:     {}".format(agent.total_reward))
+                    self.logger.warning("       Agent    ID: {}".format(agent.player_idx)+
+                                        "       Testing stats|  total_reward:     {}".format(agent.total_reward))
 
     def train_episode(self):
         """ Train the DQN player for a single episode. """
@@ -161,6 +160,18 @@ class AgentTrainer(object):
             self.fps_clock.tick(GameSetting.FPS_LIMIT)
 
     def fit_model(self):
+        self.logger.warning("<=====================  Reporting Training Settings  ========================>")
+        self.logger.warning("Learning rate: {}".format(DQNSetting.LR))
+        self.logger.warning("eps_start: {} | eps_end: {} | eps_decay {} | eps_eval: {}".format(DQNSetting.EPS_START,
+                                                                                               DQNSetting.EPS_END,
+                                                                                               DQNSetting.EPS_DECAY_LEN,
+                                                                                               DQNSetting.EPS_EVAL))
+        self.logger.warning("evaluation frequency: {} | evaluation number of episode: {}".format(DQNSetting.EVAL_FRE,
+                                                                                            DQNSetting.EVAL_EPISODES))
+        self.logger.warning("Learning start at: {} steps".format(DQNSetting.LEARNING_START_IN_EPISODE))
+        self.logger.warning("Random seed: {}".format(DQNSetting.SEED))
+        self.logger.warning("<============================  Reporting ends  ==============================>")
+
         self.reset_stats()
         self.episode = 0
         while self.episode < self.n_episodes:
@@ -172,14 +183,15 @@ class AgentTrainer(object):
                 self.logger.warning("Training @ episode: {} | total reward:  {}".format(self.episode,
                                                                                                 agent.total_reward))
                 # self.logger.warning("        Position distribution:" + "\n" + agent.display_position_stats())
-                self.logger.warning("Training @ episode: {} | Action distribution:".format(self.episode)
-                                    + agent.display_action_stats())
+                # self.logger.warning("Training @ episode: {} | Action distribution:".format(self.episode)
+                #                     + agent.display_action_stats())
             if self.episode % DQNSetting.EVAL_FRE == 0 and self.step > DQNSetting.LEARNING_START_IN_EPISODE:
                 self.set_all_agents_to_train(False)
-                self.logger.warning("Evaluating starting    @ EPISODE: " + str(self.episode))
+                self.logger.warning("<============  Evaluating starting    @ EPISODE: " + str(self.episode) +
+                                    "==============>")
                 self.evaluate_episode()
                 self.set_all_agents_to_train(True)
-                self.logger.warning("Resume training @ EPISODE: " + str(self.episode))
+                self.logger.warning("<============  Resume training @ EPISODE: {}  ============>".format(self.episode))
 
             if self.episode % DQNSetting.SAVE_FRE == 0:
                 # save stats for all episodes
@@ -201,61 +213,73 @@ class AgentTrainer(object):
         """
         evaluate for an episode
         """
-        self.fps_clock = pygame.time.Clock()
+        episode_in_eval = 0
+        while episode_in_eval < DQNSetting.EVAL_EPISODES:
+            episode_in_eval += 1
+            self.logger.warning("<=================  In the {} episode of evaluation"
+                                "  =================>".format(episode_in_eval))
+            self.fps_clock = pygame.time.Clock()
 
-        # Initialize the environment.
-        self.new_episode()
+            # Initialize the environment.
+            self.new_episode()
 
-        # Main game loop.
-        running = True
-        while running:
-            self.step_in_an_episode += 1  # From 1 to self.n_steps
-            if self.step_in_an_episode == self.eval_steps:
-                running = False
+            # Main game loop.
+            running = True
+            while running:
+                self.step_in_an_episode += 1  # From 1 to self.n_steps
+                if self.step_in_an_episode == self.eval_steps:
+                    running = False
 
-            # Log of overall information
-            if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
-                self.logger.warning("Evaluating Report   @ EPISODE: " + str(self.episode) +
-                                    " | STEP: " + str(self.step_in_an_episode) +
-                                    " | Elapsed Time: " + str(time.time() - self.start_time))
+                # Log of overall information
+                if self.step_in_an_episode % DQNSetting.LOG_FRE == 0:
+                    self.logger.warning("Evaluating Report   @ EPISODE: " + str(self.episode) +
+                                        " | STEP: " + str(self.step_in_an_episode) +
+                                        " | Elapsed Time: " + str(time.time() - self.start_time))
 
-            agent = self.agent_list[0]
-            self.move(agent, running, 2)
-            if self.visual:
-                self.draw_all_cells()
-                pygame.display.update()
+                agent = self.agent_list[0]
+                self.move(agent, running, 2)
+                if self.visual:
+                    self.draw_all_cells()
+                    pygame.display.update()
 
-            agent = self.agent_list[1]
-            self.move(agent, running, 2)
-            if self.visual:
-                self.draw_all_cells()
-                pygame.display.update()
-            self.fps_clock.tick(GameSetting.FPS_LIMIT)
+                agent = self.agent_list[1]
+                self.move(agent, running, 2)
+                if self.visual:
+                    self.draw_all_cells()
+                    pygame.display.update()
+                self.fps_clock.tick(GameSetting.FPS_LIMIT)
+
+            for agent in self.agent_list:
+                if agent.is_DQN:
+                    v_avg, tderr_avg = agent.compute_validation_stats()
+                    agent.v_avg_log.append([self.episode, v_avg])
+                    agent.tderr_avg_log.append([self.episode, tderr_avg.data.clone().mean()])
+                    agent.reward_log.append([self.episode, agent.total_reward])
+                    agent.action_log.append([self.episode, agent.action_stats])
+                    self.logger.warning("Evaluation Report for Agent ID: {} @ EPISODE: {}".format(agent.player_idx,
+                                                                                                  self.episode))
+                    self.logger.warning("       Evaluation @ EPISODE: {0:}| v_avg: {1:.4f} "
+                                        "| td_err_avg: {2:.4f}"
+                                        "| reward_avg: {3:}"
+                                        "| Action distribution|".format(self.episode,
+                                                                        agent.v_avg_log[-1][1],
+                                                                        agent.tderr_avg_log[-1][1],
+                                                                        agent.total_reward) +
+                                        agent.display_action_stats())
 
         for agent in self.agent_list:
             if agent.is_DQN:
-                v_avg, tderr_avg = agent.compute_validation_stats()
-                agent.v_avg_log.append([self.episode, v_avg])
-                agent.tderr_avg_log.append([self.episode, tderr_avg.data.clone().mean()])
-                agent.reward_log.append([self.episode, agent.total_reward])
-                agent.action_log.append([self.episode, agent.action_stats])
-                self.logger.warning("Evaluation Report for Agent ID: {} @ EPISODE: {}".format(agent.player_idx,
-                                                                                              self.episode))
-                self.logger.warning("Evaluation @ EPISODE: {}: v_avg: {}".format(self.episode, agent.v_avg_log[-1][1]))
-                self.logger.warning("Evaluation @ EPISODE: {}: tderr_avg: {}".format(self.episode,
-                                                                                   agent.tderr_avg_log[-1][1]))
-                self.logger.warning("Evaluation @ EPISODE: {}: reward_avg: {}".format(self.episode,
-                                                                                    agent.reward_log[-1][1]))
-                self.logger.warning("Evaluation @ EPISODE: {}: Action distribution:".format(self.episode) +
-                                    agent.display_action_stats())
-
-                if agent.total_reward >= agent.best_reward and agent.total_reward > 0:
-                    agent.best_reward = agent.total_reward
+                mean_total_reward = np.mean(np.asarray(agent.reward_log)[-DQNSetting.EVAL_EPISODES:, 1])
+                agent.reward_avg_log.append([self.episode, mean_total_reward])
+                self.logger.warning("<===================  Evaluation stops @ EPISODE: {}| total_avg_reward: {}"
+                                    "  ===================>".format(self.episode,mean_total_reward))
+                if mean_total_reward >= agent.best_avg_reward and mean_total_reward > 0:
+                    agent.best_avg_reward = mean_total_reward
                     torch.save(agent.q_network.state_dict(), SaveSetting().MODEL_NAME + "_id-" + str(agent.player_idx) +
                                "_episode-" + str(self.episode) + "_best" + ".pth")
                     self.logger.warning("Saved  Model for agent ID: {} @ Episode: {}".format(agent.player_idx,
                                                                                              self.episode) +
-                                        " | Best Reward: " + str(agent.best_reward))
+                                        " | Best Reward: " + str(agent.best_avg_reward))
 
     def test_model(self):
         self.load_model()
@@ -318,7 +342,8 @@ class AgentTrainer(object):
                 agent.tderr_avg_log = []
                 agent.reward_log = []
                 agent.action_log = []
-                agent.best_reward = 0
+                agent.best_avg_reward = 0
+                agent.reward_avg_log = []
 
     def draw_a_cell(self, x, y):
         """ Draw the cell specified by the field coordinates. """
