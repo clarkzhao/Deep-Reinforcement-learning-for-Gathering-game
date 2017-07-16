@@ -16,8 +16,8 @@ if __name__ == '__main__':
 
     # If you want to try random agent
     # agent_list = [HumanAgent(), RandomAgent(), PreyAgent()]
-    agent_list = [DQNAgent(), DQNAgent()]
-    # agent_list = [DRUQNAgent(), DRUQNAgent()]
+    # agent_list = [DQNAgent(), DQNAgent()]
+    agent_list = [DRUQNAgent(), DRUQNAgent()]
     Game.load_agent(agent_list)
     Game.fit_model()
     # Game.test_model()

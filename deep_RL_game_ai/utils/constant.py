@@ -126,20 +126,21 @@ class DQNSetting(object):
     LOG_FRE = 100  # how many steps to display the training information
     EVAL_STEPS = 1000  # how many steps for evaluation
     EVAL_EPISODES = 5
+    TEST_EPISODES = 100
     LEARNING_START_IN_EPISODE = 500  # how many steps does the learning start in the first episode
     VISUAL_GUI = False  # whether or not to render the game
     CLIP_GRAD = 1.
-    VISUAL_DATA = True
+    VISUAL_DATA = False
     SAVE_FRE = 100
     USE_CUDA = False
 
     # Change for DQN or DRUQN
-    LR = 0.00025  # learning rate
-    ALPHA = 0.01
+    LR = 0.001  # learning rate
+    ALPHA = 0.1
 
     # File name for the saved DQN model
-    PRETRAINED_MODEL_1 = os.getcwd() + "/output/saved_models/" + "2017-07-14_03-53-03_id-0_episode-1565_best.pth"
-    PRETRAINED_MODEL_2 = os.getcwd() + "/output/saved_models/" + r"2017-07-14_03-44-41_id-1_episode-1540_best.pth"
+    PRETRAINED_MODEL_1 = os.getcwd() + "/output/saved_models/" + "2017-07-15_08-20-22_id-0_episode-2000_final.pth"
+    PRETRAINED_MODEL_2 = os.getcwd() + "/output/saved_models/" + "2017-07-15_08-20-22_id-1_episode-2000_final.pth"
 
     #Global Seed
     SEED = 123
@@ -173,7 +174,6 @@ class SaveSetting(object):
         self.timestamp = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
         self.MODEL_NAME = self.root_dir + "/output/saved_models/" + self.timestamp
         self.RESULT_NAME = self.root_dir + "/output/results/" + self.timestamp
-
 
 class Params(object):
     def __init__(self):

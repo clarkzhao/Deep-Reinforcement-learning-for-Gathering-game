@@ -201,6 +201,7 @@ class AgentTrainer(object):
                     result["action_pre"] = agent.action_log
                     result["v_avg"] = agent.v_avg_log
                     result["td_err"] = agent.tderr_avg_log
+                    result["reward_avg"] = agent.reward_avg_log
                     pickle.dump(result, open(SaveSetting().RESULT_NAME + "_id-" + str(agent.player_idx) +
                                              "_episode-" + str(self.episode) + ".p", "wb"))
                     del result
@@ -288,9 +289,12 @@ class AgentTrainer(object):
         self.episode = 0
         for agent in self.agent_list:
             agent.learning_start = 0
-
-        while self.episode < self.n_episodes:
+        log_avg_reward_0 = []
+        log_avg_reward_1 = []
+        while self.episode < DQNSetting.TEST_EPISODES:
             self.episode += 1
+            self.logger.warning("<=================  In the {} episode of Testing"
+                                "  =================>".format(self.episode))
             self.step += 1
             self.fps_clock = pygame.time.Clock()
 
@@ -327,12 +331,17 @@ class AgentTrainer(object):
                 if agent.is_DQN:
                     agent.reward_log.append([self.episode, agent.total_reward])
                     agent.action_log.append([self.episode, agent.action_stats])
-                    self.logger.warning("Testing Report for Agent ID: {} @ EPISODE: {}".format(agent.player_idx,
+                    self.logger.warning("Test Report for Agent ID: {} @ EPISODE: {}".format(agent.player_idx,
                                                                                                   self.episode))
-                    self.logger.warning("Testing @ EPISODE: {}: reward_avg: {}".format(self.episode,
-                                                                                          agent.reward_log[-1][1]))
-                    self.logger.warning("Testing @ EPISODE: {}: Action distribution:".format(self.episode) +
-                                        agent.display_action_stats())
+                    self.logger.warning("       Test @ EPISODE: {0:}| "
+                                        "| reward_avg: {1:}".format(self.episode,
+                                                                    agent.total_reward))
+                    self.logger.warning("       Action distribution: " + agent.display_action_stats())
+            for agent in self.agent_list:
+                if agent.is_DQN:
+                    mean_total_reward = np.mean(np.asarray(agent.reward_log)[:, 1])
+                    self.logger.warning("<===================  Testing @ EPISODE: {}| total_avg_reward: {}"
+                                        "  ===================>".format(self.episode, mean_total_reward))
 
     def reset_stats(self):
         for agent in self.agent_list:
