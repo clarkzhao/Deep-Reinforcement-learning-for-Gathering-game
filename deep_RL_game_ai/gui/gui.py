@@ -16,6 +16,7 @@ class GUIBase(object):
         self.env = None
         self.agent_list = []
         self.timestep_watch = Stopwatch()
+        self.step = 0
 
     def set_up(self):
         pass
@@ -99,7 +100,7 @@ class GUIBase(object):
     def run_episode(self):
         """ Run the GUI player for a single episode. """
         self.fps_clock = pygame.time.Clock()
-
+        self.step = 0
         # Initialize the environment.
         self.timestep_watch.reset()
         self.env.new_episode()
@@ -136,6 +137,8 @@ class GUIBase(object):
                     pygame.quit()
                     sys.exit()
 
+            if human_made_move:
+                self.step += 1
             # Update for AI's action
             if self.timestep_watch.time() >= timestep_delay:
                 self.timestep_watch.reset()
@@ -150,10 +153,10 @@ class GUIBase(object):
             self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
 
             # Update the environment
-            self.env.move()
+            self.env.move(self.step)
             agent = self.agent_list[1]
             self.env.take_action(agent.action, self.env.player_list[agent.player_idx])
-            self.env.move()
+            self.env.move(self.step)
             for agent in self.agent_list:
                 if agent.is_human:
                     reward = self.env.player_list[agent.player_idx].reward

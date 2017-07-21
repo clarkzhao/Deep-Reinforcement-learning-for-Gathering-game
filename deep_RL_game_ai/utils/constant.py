@@ -135,7 +135,7 @@ class DQNSetting(object):
     USE_CUDA = False
 
     # Change for DQN or DRUQN
-    LR = 0.001  # learning rate
+    LR = 0.00025  # learning rate
     ALPHA = 0.1
 
     # File name for the saved DQN model
@@ -144,6 +144,9 @@ class DQNSetting(object):
 
     #Global Seed
     SEED = 123
+
+    NOISY = True
+    P_NOISY = 0.01
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,
@@ -174,6 +177,7 @@ class SaveSetting(object):
         self.timestamp = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
         self.MODEL_NAME = self.root_dir + "/output/saved_models/" + self.timestamp
         self.RESULT_NAME = self.root_dir + "/output/results/" + self.timestamp
+
 
 class Params(object):
     def __init__(self):

@@ -170,6 +170,8 @@ class AgentTrainer(object):
                                                                                             DQNSetting.EVAL_EPISODES))
         self.logger.warning("Learning start at: {} steps".format(DQNSetting.LEARNING_START_IN_EPISODE))
         self.logger.warning("Random seed: {}".format(DQNSetting.SEED))
+        if DQNSetting.NOISY:
+            self.logger.warning("Training with noisy probability: " + str(DQNSetting.P_NOISY))
         self.logger.warning("<============================  Reporting ends  ==============================>")
 
         self.reset_stats()

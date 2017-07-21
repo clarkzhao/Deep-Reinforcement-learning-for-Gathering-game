@@ -9,8 +9,6 @@ from game.trainer import *
 
 if __name__ == '__main__':
     set_global_seeds(DQNSetting.SEED)
-    # Game = WolfpackGUI()
-    # Game = CliGame()
     Game = AgentTrainer()
     Game.set_up()
 
@@ -21,7 +19,6 @@ if __name__ == '__main__':
     Game.load_agent(agent_list)
     Game.fit_model()
     # Game.test_model()
-
 
 
     # Game = GatheringGUI()

@@ -114,7 +114,18 @@ class EnvironmentGathering(EnvironmentBase):
             if not apple.is_collected and apple.position == player.position and not player.is_tagged:
                 apple.get_collected(step)
                 player.apple_eaten += 1
-                player.reward = 1
+                if not DQNSetting.NOISY:
+                    # Without noise
+                    player.reward = 1
+                else:
+                    # With noise
+                    sample = random.random()
+                    if sample > DQNSetting.P_NOISY:
+                        # positive reward
+                        player.reward = 2.0 / (1 - DQNSetting.P_NOISY)
+                    else:
+                        # Negative reward
+                        player.reward = -1.0 / DQNSetting.P_NOISY
                 eaten_any_apple = True
                 break
         if not eaten_any_apple:
