@@ -60,6 +60,7 @@ class AgentTrainer(object):
             idx += 1
             if agent.is_DQN:
                 agent.optimizer = agent.optim(agent.q_network.parameters(), lr=agent.lr, alpha=0.95, eps=0.01)
+                # agent.optimizer = agent.optim(agent.q_network.parameters(), lr=agent.lr)
 
     def load_model(self):
         if self.agent_list[0].load_model(DQNSetting.PRETRAINED_MODEL_1):
@@ -162,6 +163,7 @@ class AgentTrainer(object):
     def fit_model(self):
         self.logger.warning("<=====================  Reporting Training Settings  ========================>")
         self.logger.warning("Learning rate: {}".format(DQNSetting.LR))
+        self.logger.warning("Learning rate for RU: {}".format(DQNSetting.LR_RU))
         self.logger.warning("eps_start: {} | eps_end: {} | eps_decay {} | eps_eval: {}".format(DQNSetting.EPS_START,
                                                                                                DQNSetting.EPS_END,
                                                                                                DQNSetting.EPS_DECAY_LEN,
@@ -169,6 +171,7 @@ class AgentTrainer(object):
         self.logger.warning("evaluation frequency: {} | evaluation number of episode: {}".format(DQNSetting.EVAL_FRE,
                                                                                             DQNSetting.EVAL_EPISODES))
         self.logger.warning("Learning start at: {} steps".format(DQNSetting.LEARNING_START_IN_EPISODE))
+        self.logger.warning("Training batch size: {} ".format(DQNSetting.BATCH_SIZE))
         self.logger.warning("Random seed: {}".format(DQNSetting.SEED))
         if DQNSetting.NOISY:
             self.logger.warning("Training with noisy probability: " + str(DQNSetting.P_NOISY))

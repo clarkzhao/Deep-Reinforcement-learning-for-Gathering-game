@@ -48,6 +48,8 @@ class BaseDQNAgent(Agent):
         # self.logger.warning(self.q_network.__repr__)
         self.recent_action = None
         self.optim = optim.RMSprop
+        # self.optim = optim.Adam
+        # self.optim = optim.SGD
         self.optimizer = None
         self.training = True
         self.target_update_fre = DQNSetting.TARGET_UPDATE_FRE
@@ -143,9 +145,16 @@ class DQNAgent(BaseDQNAgent):
         if self.use_cuda:
             action = action.cuda()
 
+        if DQNSetting.DOUBLE:
+            q_values = self.q_network(cur_s)
+            _, q2_max_actions = q_values.max(dim=1)
+            q2_max = self.target_q(next_s)
+            q2_max = q2_max.gather(1, q2_max_actions)
+
         # Compute max_a Q(s2, a)
         # Detach this variable from the current graph since we don't want gradients to propagate
-        q2_max = self.target_q(next_s).detach().max(1)[0]
+        else:
+            q2_max = self.target_q(next_s).detach().max(1)[0]
         # Compute q2 = (1-terminal) * gamma * max_a Q(s2, a)
         q2 = not_term * q2_max
         # Compute target = r + (1-terminal) * gamma * max_a Q(s2, a)
@@ -159,6 +168,8 @@ class DQNAgent(BaseDQNAgent):
 
         # Compute TD error  delta = Huber loss( Q(s, a), r + (1-terminal) * gamma * max_a Q(s2, a) )
         delta = F.smooth_l1_loss(q, target_q)
+        # delta = 1. / target_q.numel() * sum((a - b).abs().sum() for a, b in zip(target_q, q))
+
         # delta = target_q - q
 
         if not self.training:   # then is being called from _compute_validation_stats, which is just doing inference
@@ -256,14 +267,23 @@ class DRUQNAgent(BaseDQNAgent):
         action = Variable(torch.from_numpy(action).long())
         reward = Variable(torch.from_numpy(reward).type(self.dtype))
         not_term = Variable(torch.from_numpy(1 - term)).type(self.dtype)
-        eff_lr = Variable(torch.from_numpy(eff_lr).type(self.dtype))
+        # eff_lr = Variable(torch.from_numpy(eff_lr).type(self.dtype))
 
         if self.use_cuda:
             action = action.cuda()
 
+        if DQNSetting.DOUBLE:
+            q_values = self.q_network(cur_s)
+            _, q2_max_actions = q_values.max(dim=1)
+            q2_max = self.target_q(next_s)
+            q2_max = q2_max.gather(1, q2_max_actions)
+
         # Compute max_a Q(s2, a)
         # Detach this variable from the current graph since we don't want gradients to propagate
-        q2_max = self.target_q(next_s).detach().max(1)[0]
+        else:
+            # Compute max_a Q(s2, a)
+            # Detach this variable from the current graph since we don't want gradients to propagate
+            q2_max = self.target_q(next_s).detach().max(1)[0]
         # Compute q2 = (1-terminal) * gamma * max_a Q(s2, a)
         q2 = not_term * q2_max
         # Compute target = r + (1-terminal) * gamma * max_a Q(s2, a)
@@ -275,10 +295,10 @@ class DRUQNAgent(BaseDQNAgent):
         # # clip the TD error between [-1 , 1]
         # delta_clipped = delta.clamp(-1, 1)
         # Compute TD error  delta = Huber loss( Q(s, a), r + (1-terminal) * gamma * max_a Q(s2, a) )
-        # delta = F.smooth_l1_loss(q, target_q)
+        delta = F.smooth_l1_loss(q, target_q)
         # delta = target_q - q
         # L1 loss
-        delta = 1. / target_q.numel() * sum((c*(a - b)).abs().sum() for a, b, c in zip(target_q, q, eff_lr))
+        # delta = 1. / target_q.numel() * sum((c*(a - b)).abs().sum() for a, b, c in zip(target_q, q, eff_lr))
 
         if not self.training:   # then is being called from _compute_validation_stats, which is just doing inference
             delta = Variable(delta.data)  # detach it from the graph
@@ -317,6 +337,17 @@ class DRUQNAgent(BaseDQNAgent):
 
         return action
 
+    def update_eff_lr(self, action, state):
+        q_vals = self.q_network(Variable(torch.from_numpy(state).type(self.dtype).unsqueeze(0) / 255.0
+                                         , volatile=True)).data  # all output action values
+        greedy_action = np.argmax(q_vals.numpy())
+        if action == greedy_action:
+            p = 1.0 - (float(self.n_actions) - 1.0) / float(self.n_actions) * self.eps
+        else:
+            p = self.eps / float(self.n_actions)
+        eff_lr = 1 - (1 - self.alpha) ** (1/p)
+        return eff_lr
+
     def learn(self, reward, terminal):
         """
         Update the parameter for the q-network
@@ -340,16 +371,27 @@ class DRUQNAgent(BaseDQNAgent):
 
         if self.step > self.learning_start and self.memory_buffer.can_sample(DQNSetting.BATCH_SIZE):
             state, action, reward, next_state, term, eff_lr = self.memory_buffer.sample(DQNSetting.BATCH_SIZE)
-            _, delta = self.get_Q_update(state, action, reward, next_state, term, eff_lr)
-            self.optimizer.zero_grad()
-            # run backward pass and clip gradient
-            delta.backward()
-            for param in self.q_network.parameters():
-                param.grad.data.clamp_(-self.clip_grad, self.clip_grad)
-            # for param in self.q_network.parameters():
-            #     param.grad.data.clamp_(-1, 40)
-            # Perform the update
-            self.optimizer.step()
+            for i in range(DQNSetting.BATCH_SIZE):
+                # state, action, reward, next_state, term, eff_lr = self.memory_buffer.sample(DQNSetting.BATCH_SIZE)
+                # _, delta = self.get_Q_update(state, action, reward, next_state, term, eff_lr)
+                _, delta = self.get_Q_update(np.expand_dims(state[i], axis=0),
+                                             action[i].reshape([1, ]),
+                                             reward[i].reshape([1, ]),
+                                             np.expand_dims(next_state[i], axis=0),
+                                             term[i].reshape([1, ]),
+                                             eff_lr[i].reshape([1, ]))
+                self.optimizer.zero_grad()
+                # self.q_network.zero_grad()
+                # run backward pass and clip gradient
+                delta.backward()
+                # for param in self.q_network.parameters():
+                    # param.grad.data.clamp_(-self.clip_grad, self.clip_grad)
+                # Perform the update
+                # update the effective learning rate
+                # eff_lr[i] = self.update_eff_lr(action[i], state[i])
+                for group in self.optimizer.param_groups:
+                    group['lr'] = float(eff_lr[i]) * DQNSetting.LR_RU
+                self.optimizer.step()
             # Update the target network
             if self.step % self.target_update_fre == 0:
                 self.target_q.load_state_dict(self.q_network.state_dict())

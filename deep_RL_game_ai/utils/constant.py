@@ -109,7 +109,7 @@ class DQNSetting(object):
     MEMORY_SIZE = int(1e5)  # size of replay buffer
     N_COLS = 3  # number of color channels in the input
     N_HIST = 1  # length of history
-    BATCH_SIZE = 32  # how many transitions to sample each time from the memory buffer in training
+    BATCH_SIZE = 8  # how many transitions to sample each time from the memory buffer in training
     VALID_SIZE = 500  # how many transitions to sample each time from the memory buffer in validation
 
     EPS_START = 1.0  # epsilon at the start
@@ -136,7 +136,8 @@ class DQNSetting(object):
 
     # Change for DQN or DRUQN
     LR = 0.00025  # learning rate
-    ALPHA = 0.1
+    LR_RU = 0.00025
+    ALPHA = 0.10
 
     # File name for the saved DQN model
     PRETRAINED_MODEL_1 = os.getcwd() + "/output/saved_models/" + "2017-07-15_08-20-22_id-0_episode-2000_final.pth"
@@ -145,8 +146,10 @@ class DQNSetting(object):
     #Global Seed
     SEED = 123
 
-    NOISY = True
+    NOISY = False
     P_NOISY = 0.01
+
+    DOUBLE = True
 
 GAME_CONTROL_KEYS = [
     pygame.K_UP,

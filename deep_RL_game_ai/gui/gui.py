@@ -163,14 +163,17 @@ class GUIBase(object):
                     agent.total_reward += reward
                     # img = self.env.player_list[agent.player_idx].convert_observation_to_rgb()
                     # self.show(img)
-                    self.env.convert_view(self.env.player_list[agent.player_idx])
+                    # self.env.convert_view(self.env.player_list[agent.player_idx])
                     if reward != 0:
                         print(agent.player_idx, reward)
                         print("total reward: {}".format(agent.total_reward))
 
-            # if human_made_move:
-            #     img = self.env.player_list[0].convert_observation_to_rgb()
-            #     self.show(img)
+            # self.env.convert_view(0)
+
+
+            if human_made_move:
+                img = self.env.player_list[1].convert_observation_to_rgb()
+                self.show(img)
 
             # Draw all cells
             if GameSetting.GUI:
