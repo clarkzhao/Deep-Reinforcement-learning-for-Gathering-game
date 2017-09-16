@@ -12,8 +12,5 @@ The two games of Gathering and Wolfpack is orgionally proposed by Dr. Joel and D
 
 *  [Pygame](http://www.pygame.org/news)
 *  Numpy
-
-
-
-
+*  [Pytorch](http://pytorch.org)
 
